@@ -33,9 +33,12 @@ dependencies = [
     "types-requests>=2.32.0.20250306,<3.0.0.0",
 ]
 
-[tool.poetry.group.dev.dependencies]
-mypy = ">=1.15.0"
-ruff = ">=0.11.2"
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pdoc>=15.0.1",
+    "ruff>=0.11.2",
+]
 
 [tool.uv.sources]
 dsbase = { workspace = true }
@@ -97,7 +100,6 @@ timestamps = "dsbin.mac.timestamps:main"
 # Development-related scripts
 check-imports = "dsbin.dev.import_checker:main"
 code-configs = "dsbin.configs.main:main"
-pipmigrator = "dsbin.dev.pipmigrator:main"
 poetry-migrate = "dsbin.dev.poetry_migrate:main"
 pyenversioner = "dsbin.dev.pyenversioner:main"
 scriptdep = "dsbin.dev.scriptdep:main"

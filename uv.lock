@@ -4,7 +4,6 @@ requires-python = ">=3.12, <4.0"
 
 [manifest]
 members = [
-    "0",
     "ds-iplookup",
     "dsbase",
     "dsbin",
@@ -12,11 +11,6 @@ members = [
     "pybumper",
     "workcalc",
 ]
-
-[[package]]
-name = "0"
-version = "0.0.0"
-source = { editable = "." }
 
 [[package]]
 name = "ansicon"
@@ -220,7 +214,7 @@ source = { editable = "packages/iplookup" }
 [[package]]
 name = "dsbase"
 version = "0.3.7"
-source = { editable = "packages/dsbase" }
+source = { editable = "." }
 dependencies = [
     { name = "halo" },
     { name = "mysql-connector-python" },
@@ -295,7 +289,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dsbase", editable = "packages/dsbase" },
+    { name = "dsbase", editable = "." },
     { name = "halo", specifier = ">=0.0.31,<0.0.32" },
     { name = "inquirer", specifier = ">=3.4.0,<4.0.0" },
     { name = "mutagen", specifier = ">=1.47.0,<2.0.0" },
@@ -332,7 +326,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dsbase", editable = "packages/dsbase" },
+    { name = "dsbase", editable = "." },
     { name = "pexpect", specifier = ">=4.9.0,<5.0.0" },
 ]
 
@@ -619,7 +613,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "dsbase", editable = "packages/dsbase" }]
+requires-dist = [{ name = "dsbase", editable = "." }]
 
 [[package]]
 name = "pycparser"
@@ -995,7 +989,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "dsbase", editable = "packages/dsbase" }]
+requires-dist = [{ name = "dsbase", editable = "." }]
 
 [[package]]
 name = "xmod"
