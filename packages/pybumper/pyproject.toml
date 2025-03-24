@@ -1,0 +1,26 @@
+[project]
+name = "pybumper"
+version = "0.1.6"
+description = "Comprehensive version bumping for Python projects"
+authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
+urls = { repository = "https://github.com/dannystewart/pybumper" }
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["dsbase"]
+
+[tool.poetry.group.dev.dependencies]
+mypy = ">=1.15.0"
+ruff = ">=0.11.2"
+
+[tool.uv.sources]
+dsbase = { workspace = true }
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+pybumper = "pybumper.main:main"

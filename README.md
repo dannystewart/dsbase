@@ -1,3 +1,3 @@
-# dsbin
+# dsuniverse
 
-This is my personal collection of scripts and utilities. Check [`pyproject.toml`](./pyproject.toml) for the list installed by the package.
+This is the monorepo for my personal collection of scripts and utilities.

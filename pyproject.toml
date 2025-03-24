@@ -1,111 +1,16 @@
 [project]
-name = "dsbin"
-version = "0.3.0"
-description = "Personal Python script library"
-authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
-urls = { repository = "https://github.com/dannystewart/dsbin" }
-readme = "README.md"
-requires-python = ">=3.12,<4.0"
-dependencies = [
-    "dsbase (>=0.3.7,<0.4.0)",
-    "halo (>=0.0.31,<0.0.32)",
-    "inquirer (>=3.4.0,<4.0.0)",
-    "mutagen (>=1.47.0,<2.0.0)",
-    "mysql-connector-python (>=9.2.0,<10.0.0)",
-    "natsort (>=8.4.0,<9.0.0)",
-    "numpy (>=2.2.4,<3.0.0)",
-    "packaging (>=24.2,<25.0)",
-    "paramiko (>=3.5.1,<4.0.0)",
-    "pexpect (>=4.9.0,<5.0.0)",
-    "pillow (>=11.1.0,<12.0.0)",
-    "pyperclip (>=1.9.0,<2.0.0)",
-    "python-dotenv (>=1.0.1,<2.0.0)",
-    "requests (>=2.32.3,<3.0.0)",
-    "rich (>=13.9.4,<14.0.0)",
-    "rsa (>=4.9,<5.0)",
-    "scipy (>=1.15.2,<2.0.0)",
-    "scp (>=0.15.0,<0.16.0)",
-    "telethon (>=1.39.0,<2.0.0)",
-    "tomlkit (>=0.13.2,<0.14.0)",
-    "tqdm (>=4.67.1,<5.0.0)",
-    "types-paramiko (>=3.5.0.20240928,<4.0.0.0)",
-    "types-pillow (>=10.2.0.20240822,<11.0.0.0)",
-    "types-requests (>=2.32.0.20250306,<3.0.0.0)",
-]
+name = "dsuniverse"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+classifiers = ["Private :: Do Not Upload"]
 
-[tool.poetry.group.dev.dependencies]
-mypy = ">=1.15.0"
-ruff = ">=0.11.2"
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [build-system]
-requires = ["poetry-core>=2.0"]
-build-backend = "poetry.core.masonry.api"
-
-[project.scripts]
-# Scripts to list all my scripts and check versions
-lsbin = "dsbin.lsbin:main"
-dsver = "dsbin.dsver:main"
-
-# File management scripts
-backupsort = "dsbin.files.backupsort:main"
-bigfiles = "dsbin.files.bigfiles:main"
-dupefinder = "dsbin.files.dupefinder:main"
-fml = "dsbin.files.fml:main"
-foldermerge = "dsbin.files.foldermerge:main"
-rsyncer = "dsbin.files.rsyncer:main"
-
-# Media scripts
-ffgif = "dsbin.media.ffgif:main"
-fftrim = "dsbin.media.fftrim:main"
-ytdl = "dsbin.media.ytdl:main"
-
-# Music scripts
-aif2wav = "dsbin.music.awa:aif2wav"
-alacrity = "dsbin.music.alacrity:main"
-hpfilter = "dsbin.music.hpfilter:main"
-metacopy = "dsbin.music.metacopy:main"
-mp3ify = "dsbin.music.mp3ify:main"
-mshare = "dsbin.music.mshare:main"
-pybounce = "dsbin.pybounce.main:main"
-rmp3 = "dsbin.music.rmp3:main"
-wav2aif = "dsbin.music.awa:wav2aif"
-wpmusic = "dsbin.wpmusic.main:main"
-
-# Logic-specific scripts
-bipclean = "dsbin.logic.bipclean:main"
-bouncefiler = "dsbin.logic.bouncefiler:main"
-bounceprune = "dsbin.logic.bounceprune:main"
-bounces = "dsbin.logic.bounces:main"
-oldprojects = "dsbin.logic.oldprojects:main"
-
-# Mac-specific scripts
-dmg-encrypt = "dsbin.mac.dmg_encrypt:main"
-dmgify = "dsbin.mac.dmgify:main"
-mvdmg = "dsbin.mac.mvdmg:main"
-netreset = "dsbin.mac.netreset:main"
-pkginst = "dsbin.mac.pkginst:main"
-setmag = "dsbin.mac.setmag:main"
-spacepurger = "dsbin.mac.spacepurger:main"
-timestamps = "dsbin.mac.timestamps:main"
-
-# Development-related scripts
-check-imports = "dsbin.dev.import_checker:main"
-code-configs = "dsbin.configs.main:main"
-pipmigrator = "dsbin.dev.pipmigrator:main"
-poetry-migrate = "dsbin.dev.poetry_migrate:main"
-pyenversioner = "dsbin.dev.pyenversioner:main"
-scriptdep = "dsbin.dev.scriptdep:main"
-tagreplace = "dsbin.dev.tag_replace:main"
-uvmigrate = "dsbin.dev.uvmigrate:main"
-
-# System tools
-changehostname = "dsbin.tools.changehostname:main"
-dsservice = "dsbin.tools.dsservice:main"
-dockermounter = "dsbin.tools.dockermounter:main"
-envsync = "dsbin.tools.envsync:main"
-ssh-tunnel = "dsbin.tools.ssh_tunnel:main"
-watchtower = "dsbin.tools.watchtower:main"
-
-# Text processing scripts
-pycompare = "dsbin.text.pycompare:main"
-w11renamer = "dsbin.text.w11renamer:main"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,23 @@
+[project]
+name = "ds-iplookup"
+version = "0.1.2"
+description = "IP lookup tool"
+authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.2"
+mypy = "^1.15.0"
+
+[tool.uv.sources]
+dsbase = { workspace = true }
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project.scripts]
+iplookup = "ds_iplookup.iplookup:main"
