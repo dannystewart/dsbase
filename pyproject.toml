@@ -1,12 +1,13 @@
 [project]
-name = "dsuniverse"
-version = "0.1.0"
+name = "0"
+version = "0.0.0"
 requires-python = ">=3.12"
 dependencies = []
 classifiers = ["Private :: Do Not Upload"]
 
 [tool.uv.workspace]
 members = ["packages/*"]
+exclude = ["dsuniverse"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
