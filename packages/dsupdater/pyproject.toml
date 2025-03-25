@@ -1,6 +1,6 @@
 [project]
 name = "dsupdater"
-version = "0.1.4"
+version = "0.1.5"
 description = "Multi-platform system updater script"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 license = { text = "GPL-3.0-or-later" }
