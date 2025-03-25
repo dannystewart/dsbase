@@ -166,6 +166,19 @@ class GitHelper:
 
         return has_other_changes
 
+    def generate_tag_name(self, version: str, package_name: str) -> str:
+        """Generate tag name for the given version and package.
+
+        Args:
+            version: The version string.
+            package_name: The package name.
+
+        Returns:
+            The name that will be used for the tag, in the format 'package_name-vX.Y.Z'.
+        """
+        version_prefix = self.detect_version_prefix()
+        return f"{package_name}-{version_prefix}{version}"
+
     def create_and_push_tag(self, tag_name: str) -> None:
         """Create and push a git tag."""
         if (  # Check if tag already exists
@@ -196,9 +209,7 @@ class GitHelper:
             bump_type: The type of version bump performed.
             package_name: The name of the package being versioned.
         """
-        version_prefix = self.detect_version_prefix()
-        # Include package name in tag
-        tag_name = f"{package_name}-{version_prefix}{new_version}"
+        tag_name = self.generate_tag_name(new_version, package_name)
 
         # Handle version bump commit if needed
         if bump_type is not None:

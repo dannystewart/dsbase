@@ -6,8 +6,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dsbase import LocalLogger
-from dsbase.env import EnvManager
+from dsbase import EnvManager, LocalLogger, Text
 from dsbase.shell import confirm_action
 from dsbase.util import dsbase_setup, handle_interrupt
 
@@ -24,7 +23,7 @@ dsbase_setup()
 class VersionBumper:
     """Version management tool for Python projects."""
 
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace, package_name: str) -> None:
         # Use EnvManager for debug flag
         env = EnvManager()
         env.add_debug_var()
@@ -50,6 +49,9 @@ class VersionBumper:
         self.version_helper = VersionHelper(self.pyproject_path, self.logger)
         self.git = GitHelper(self.version_helper, self.logger, args.message, self.push_to_remote)
 
+        # Store package name
+        self.package_name = package_name
+
         # Get current version as a Version object
         self.current_version = self.version_helper.get_version_object()
         self.current_ver_str = str(self.current_version)
@@ -57,15 +59,12 @@ class VersionBumper:
     def perform_bump(self) -> None:
         """Perform version bump."""
         try:
-            # Get package name from current directory
-            package_name = Path.cwd().name
-
             # Handle --keep-version flag (tag current version without incrementing)
             if self.keep_version:
                 if self.type and self.type != [BumpType.PATCH.value]:
                     self.logger.error("--keep-version cannot be used with version bump arguments")
                     sys.exit(1)
-                self.git.tag_current_version()
+                self.git.tag_current_version(self.package_name)
                 return
 
             # Default to patch if no types specified
@@ -85,15 +84,17 @@ class VersionBumper:
                 new_version_obj = self.version_helper.bump_version(bump_type, self.current_version)
 
             new_version_str = str(new_version_obj)
+            tag_name = self.git.generate_tag_name(new_version_str, self.package_name)
 
-            # Show version info with package name
-            self.logger.info("Package:         %s", package_name)
-            self.logger.info("Current version: %s", self.current_ver_str)
-            self.logger.info("Will bump to:    %s", new_version_str)
+            # Show version info
+            self.logger.info("Package:         %s", Text.color(self.package_name, "yellow"))
+            self.logger.info("Current version: %s", Text.color(self.current_ver_str, "cyan"))
+            self.logger.info("Will bump to:    %s", Text.color(new_version_str, "blue"))
+            self.logger.info("Tag name:        %s", Text.color(tag_name, "green"))
 
             # Prompt for confirmation unless --force is used
             if not self.force:
-                if not confirm_action(f"Proceed with version bump for {package_name}?"):
+                if not confirm_action(f"Proceed with version bump for {self.package_name}?"):
                     self.logger.info("Version bump cancelled.")
                     return
 
@@ -121,12 +122,7 @@ class VersionBumper:
 
     @handle_interrupt()
     def update_version(self, bump_type: BumpType | str | list[BumpType], new_version: str) -> None:
-        """Update version, create git tag, and push changes.
-
-        Args:
-            bump_type: The version's BumpType or list of BumpTypes, or a specific version string.
-            new_version: The calculated new version string.
-        """
+        """Update version, create git tag, and push changes."""
         try:
             self.git.check_git_state()
 
@@ -134,11 +130,8 @@ class VersionBumper:
             if bump_type is not None:
                 self._update_version_in_pyproject(self.pyproject_path, new_version)
 
-            # Extract package name from current directory
-            package_name = Path.cwd().name
-
             # Handle git operations with package name
-            self.git.handle_git_operations(new_version, bump_type, package_name)
+            self.git.handle_git_operations(new_version, bump_type, self.package_name)
 
             # Log success
             action = "tagged" if bump_type is None else "updated to"
