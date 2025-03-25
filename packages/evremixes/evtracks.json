@@ -1,0 +1,139 @@
+{
+    "metadata": {
+        "album_name": "Evanescence Remixes",
+        "album_artist": "Danny Stewart",
+        "artist_name": "Danny Stewart",
+        "genre": "Electronic",
+        "year": 2024,
+        "cover_art_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Evanescence-Remixes.png",
+        "inst_art_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Evanescence-Remixes-Instrumentals.png"
+    },
+    "tracks": [
+        {
+            "track_name": "Better Without You",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Better-Without-You.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Better-Without-You_Inst.flac",
+            "start_date": "2023-08-31",
+            "track_number": 1
+        },
+        {
+            "track_name": "Bring Me To Life",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Bring-Me-To-Life.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Bring-Me-To-Life_Inst.flac",
+            "start_date": "2023-09-28",
+            "track_number": 2
+        },
+        {
+            "track_name": "Broken Pieces Shine",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Broken-Pieces-Shine.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Broken-Pieces-Shine_Inst.flac",
+            "start_date": "2023-09-16",
+            "track_number": 7
+        },
+        {
+            "track_name": "Call Me When You're Sober",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Call-Me-When-Youre-Sober.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Call-Me-When-Youre-Sober_Inst.flac",
+            "start_date": "2023-08-20",
+            "track_number": 4
+        },
+        {
+            "track_name": "Everybody's Fool",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Everybodys-Fool.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Everybodys-Fool_Inst.flac",
+            "start_date": "2020-11-16",
+            "track_number": 9
+        },
+        {
+            "track_name": "Going Under",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Going-Under.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Going-Under_Inst.flac",
+            "start_date": "2020-11-04",
+            "track_number": 3
+        },
+        {
+            "track_name": "Imaginary",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Imaginary.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Imaginary_Inst.flac",
+            "start_date": "2023-07-16",
+            "track_number": 10
+        },
+        {
+            "track_name": "Lithium",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Lithium.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Lithium_Inst.flac",
+            "start_date": "2021-09-26",
+            "track_number": 15
+        },
+        {
+            "track_name": "Lost In Paradise",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Lost-In-Paradise.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Lost-In-Paradise_Inst.flac",
+            "start_date": "2023-11-28",
+            "track_number": 17
+        },
+        {
+            "track_name": "My Heart Is Broken",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/My-Heart-Is-Broken.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/My-Heart-Is-Broken_Inst.flac",
+            "start_date": "2023-08-11",
+            "track_number": 16
+        },
+        {
+            "track_name": "My Last Breath",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/My-Last-Breath.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/My-Last-Breath_Inst.flac",
+            "start_date": "2023-07-25",
+            "track_number": 13
+        },
+        {
+            "track_name": "Snow White Queen",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Snow-White-Queen.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Snow-White-Queen_Inst.flac",
+            "start_date": "2024-08-15",
+            "track_number": 14
+        },
+        {
+            "track_name": "Taking Over Me",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Taking-Over-Me.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Taking-Over-Me_Inst.flac",
+            "start_date": "2023-04-27",
+            "track_number": 12
+        },
+        {
+            "track_name": "The End of the Dream",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/The-End-of-the-Dream.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/The-End-of-the-Dream_Inst.flac",
+            "start_date": "2023-10-31",
+            "track_number": 18
+        },
+        {
+            "track_name": "The Game Is Over",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/The-Game-Is-Over.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/The-Game-Is-Over_Inst.flac",
+            "start_date": "2023-09-22",
+            "track_number": 8
+        },
+        {
+            "track_name": "Use My Voice",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Use-My-Voice.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Use-My-Voice_Inst.flac",
+            "start_date": "2023-10-07",
+            "track_number": 6
+        },
+        {
+            "track_name": "What You Want",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/What-You-Want.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/What-You-Want_Inst.flac",
+            "start_date": "2021-09-26",
+            "track_number": 5
+        },
+        {
+            "track_name": "Yeah Right",
+            "file_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Yeah-Right.flac",
+            "inst_url": "https://music.dannystewart.com/wp-content/uploads/sites/2/Yeah-Right_Inst.flac",
+            "start_date": "2024-09-06",
+            "track_number": 11
+        }
+    ]
+}
