@@ -1,6 +1,6 @@
 [project]
 name = "dsbase"
-version = "0.3.7"
+version = "0.4.0"
 description = "Delightful Python utility library with power and personality"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 readme = "README.md"
