@@ -39,6 +39,10 @@ class ArgParser(argparse.ArgumentParser):
         self.max_arg_width = kwargs.pop("max_arg_width", self.DEFAULT_MAX_ARG_WIDTH)
         self.padding = kwargs.pop("padding", self.DEFAULT_PADDING)
 
+        # Version handling options
+        self.add_version = kwargs.pop("add_version", True)
+        self.version_flags = kwargs.pop("version_flags", ["-v", "--version"])
+
         # Extract the lines parameter (0 means all lines)
         self.description_lines = kwargs.pop("lines", 0)
 
@@ -59,6 +63,10 @@ class ArgParser(argparse.ArgumentParser):
             ),
         )
 
+        # Add version argument if requested
+        if self.add_version:
+            self._add_version_argument()
+
     def add_argument(self, *args: Any, **kwargs: Any) -> argparse.Action:
         """Override add_argument to automatically lowercase help text."""
         # Extract the keep_caps parameter, defaulting to False
@@ -73,6 +81,14 @@ class ArgParser(argparse.ArgumentParser):
 
         # Call the argparser's add_argument method
         return super().add_argument(*args, **kwargs)
+
+    def _add_version_argument(self) -> None:
+        """Add a version argument that automatically detects package version."""
+        package_name = get_caller_package_name()
+        version_info = get_version_info(package_name)
+
+        version_string = str(version_info)
+        self.add_argument(*self.version_flags, action="version", version=version_string)
 
     def _format_description_text(self, text: str, lines: int = 0) -> str:
         """Prepare description text by preserving paragraph structure.
