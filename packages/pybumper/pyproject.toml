@@ -1,6 +1,6 @@
 [project]
 name = "pybumper"
-version = "0.1.6"
+version = "0.2.0"
 description = "Comprehensive version bumping for Python projects"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 urls = { repository = "https://github.com/dannystewart/pybumper" }
