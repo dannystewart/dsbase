@@ -33,13 +33,6 @@ dependencies = [
     "types-requests>=2.32.0.20250306,<3.0.0.0",
 ]
 
-[dependency-groups]
-dev = [
-    "mypy>=1.15.0",
-    "pdoc>=15.0.1",
-    "ruff>=0.11.2",
-]
-
 [tool.uv.sources]
 dsbase = { workspace = true }
 
