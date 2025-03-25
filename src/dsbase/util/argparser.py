@@ -24,10 +24,10 @@ class ArgParser(argparse.ArgumentParser):
         parser = ArgParser(description=__doc__, arg_width=24, max_width=120)
     """
 
-    DEFAULT_MAX_WIDTH: ClassVar[int] = 120
-    DEFAULT_MIN_ARG_WIDTH: ClassVar[int] = 15
-    DEFAULT_MAX_ARG_WIDTH: ClassVar[int] = 35
-    DEFAULT_PADDING: ClassVar[int] = 4
+    DEFAULT_MAX_WIDTH: ClassVar[int] = 100
+    DEFAULT_MIN_ARG_WIDTH: ClassVar[int] = 20
+    DEFAULT_MAX_ARG_WIDTH: ClassVar[int] = 40
+    DEFAULT_PADDING: ClassVar[int] = 6
 
     def __init__(self, *args: Any, **kwargs: Any):
         self.arg_width = kwargs.pop("arg_width", "auto")
@@ -36,7 +36,7 @@ class ArgParser(argparse.ArgumentParser):
         self.max_arg_width = kwargs.pop("max_arg_width", self.DEFAULT_MAX_ARG_WIDTH)
         self.padding = kwargs.pop("padding", self.DEFAULT_PADDING)
 
-        # If a fixed width is provided, use it directly, starting with minimum width
+        # Use fixed width if provided, otherwise use min_arg_width as starting point
         help_position = self.arg_width if self.arg_width != "auto" else self.min_arg_width
 
         super().__init__(
@@ -86,8 +86,9 @@ class ArgParser(argparse.ArgumentParser):
 
             max_length = max(max_length, length)
 
-        # Add padding and clamp to min/max
-        optimal_width = min(self.max_arg_width, max(self.min_arg_width, max_length + self.padding))
+        # Add padding first, then clamp to min/max range
+        optimal_width = max_length + self.padding
+        optimal_width = min(self.max_arg_width, max(self.min_arg_width, optimal_width))
 
         # Create a new formatter with the calculated width and replace the existing one
         self._formatter_class = lambda prog: CustomHelpFormatter(
