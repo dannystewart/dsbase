@@ -5,6 +5,9 @@
         }
     ],
     "settings": {
+        "cSpell.words": [
+            "dockermounter"
+        ],
         "files.exclude": {
             ".history": true,
             ".idea": true,
@@ -21,10 +24,41 @@
             "**/*.egg-info": true,
             "**/*.pyi": false,
             "**/*[0-9a-fA-F]{32}*": true,
-            "**/Thumbs.db": true,
+            "**/Thumbs.db": true
         },
-        "cSpell.words": [
-            "dockermounter"
+        "python.analysis.extraPaths": [
+            "src",
+            "packages"
         ],
+        "python.analysis.include": [
+            "src/**",
+            "packages/**"
+        ],
+        "python.analysis.packageIndexDepths": [
+            {
+                "name": "dsbase",
+                "depth": 5,
+            },
+            {
+                "name": "dsbin",
+                "depth": 5,
+            },
+            {
+                "name": "dsupdater",
+                "depth": 5,
+            },
+            {
+                "name": "iplookup",
+                "depth": 5,
+            },
+            {
+                "name": "pybumper",
+                "depth": 5,
+            },
+            {
+                "name": "workcalc",
+                "depth": 5,
+            },
+        ]
     }
 }
