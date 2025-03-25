@@ -16,7 +16,7 @@ import sys
 from dsbase.files import delete_files, move_file
 from dsbase.media import ffmpeg_video
 from dsbase.shell import halo_progress
-from dsbase.text.Text import color_print
+from dsbase.text import color_print
 from dsbase.util import dsbase_setup
 
 dsbase_setup()

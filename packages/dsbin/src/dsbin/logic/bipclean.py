@@ -17,7 +17,7 @@ from pathlib import Path
 import inquirer
 
 from dsbase.files import FileManager
-from dsbase.text.Text import color_print
+from dsbase.text import color_print
 from dsbase.time import TZ
 from dsbase.util import dsbase_setup
 
