@@ -84,7 +84,7 @@ def main(start_path: str, old_version: str, new_version: str) -> None:
         for file_path in file_paths:
             update_python_version_file(file_path, old_version, new_version)
     else:
-        print("Update cancelled.")
+        print("Update canceled.")
 
 
 def parse_arguments() -> argparse.Namespace:

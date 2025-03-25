@@ -95,7 +95,7 @@ class VersionBumper:
             # Prompt for confirmation unless --force is used
             if not self.force:
                 if not confirm_action(f"Proceed with version bump for {self.package_name}?"):
-                    self.logger.info("Version bump cancelled.")
+                    self.logger.info("Version bump canceled.")
                     return
 
             self.update_version(bump_type, new_version_str)
