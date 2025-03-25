@@ -4,10 +4,18 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+from dsbase.log import LocalLogger
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 
 class MonorepoHelper:
     """Helper for monorepo detection and package management."""
+
+    logger: Logger = LocalLogger().get_logger()
 
     @staticmethod
     def is_monorepo(directory: Path) -> bool:
@@ -61,7 +69,24 @@ class MonorepoHelper:
         if (current_dir / "pyproject.toml").exists():
             # Check if this is a monorepo root
             if cls.is_monorepo(current_dir):
-                print("Error: You're in a monorepo root. Please specify a package with --package.")
+                # We're in a monorepo root, but check if the monorepo is a package
+                try:
+                    import tomllib
+
+                    pyproject_data = tomllib.loads((current_dir / "pyproject.toml").read_text())
+                    if "project" in pyproject_data:
+                        # The monorepo root is also a package
+                        package_name = pyproject_data["project"].get("name")
+                        if not package_name:
+                            # Try to get name from directory
+                            package_name = current_dir.name
+                        package_path = current_dir
+                        return package_name, package_path
+                except (tomllib.TOMLDecodeError, KeyError):
+                    pass
+
+                # If we get here, the monorepo root is not a package itself
+                cls.logger.error("You're in a monorepo root. Please use --package to specify.")
                 sys.exit(1)
 
             # We're in a standard repository
@@ -69,29 +94,7 @@ class MonorepoHelper:
             package_path = current_dir  # Use current directory as package path
             return package_name, package_path
 
-        # Check if we're in a package directory within a monorepo
-        monorepo_root = cls.find_monorepo_root(current_dir)
-        if monorepo_root:
-            # We're somewhere in a monorepo
-
-            # Check if we're in a package directory
-            if (current_dir / "pyproject.toml").exists():
-                # This directory has a pyproject.toml, likely a package
-                package_name = current_dir.name
-                package_path = current_dir
-                return package_name, package_path
-
-            # Check if we're in the src directory of a package
-            if current_dir.name == "src" and (current_dir.parent / "pyproject.toml").exists():
-                package_name = current_dir.parent.name
-                package_path = current_dir.parent
-                return package_name, package_path
-
-            print("Error: You're in a monorepo but not in a package directory.")
-            print("Please navigate to a package directory or use --package.")
-            sys.exit(1)
-
-        print("Error: Could not auto-detect package. Please specify a package with --package.")
+        cls.logger.error("Could not auto-detect package. Please use --package to specify.")
         sys.exit(1)
 
     @classmethod
