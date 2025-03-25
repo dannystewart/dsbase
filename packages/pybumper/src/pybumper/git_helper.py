@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 
 from dsbase.util import handle_interrupt
 
+from pybumper.monorepo_helper import MonorepoHelper
+
 if TYPE_CHECKING:
     from logging import Logger
 
@@ -163,21 +165,12 @@ class GitHelper:
 
         # Determine if we're in a monorepo
         current_dir = Path.cwd()
-        parent_dir = current_dir.parent
-        grandparent_dir = parent_dir.parent if parent_dir else None
-
-        is_monorepo = False
-        if (
-            (current_dir.name == "dsbase" and parent_dir.name == "src" and grandparent_dir)
-            or (parent_dir.name == "packages" and grandparent_dir)
-            or ((current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists())
-        ):
-            is_monorepo = True
+        monorepo_root = MonorepoHelper.find_monorepo_root(current_dir)
 
         # Use custom message if provided, otherwise use default
         if self.commit_message:
             message = self.commit_message
-        elif is_monorepo:
+        elif monorepo_root:
             message = f"Bump {package_name} to {new_version}"
         else:
             message = f"Bump version to {new_version}"
@@ -198,23 +191,14 @@ class GitHelper:
         """
         version_prefix = self.detect_version_prefix()
 
-        # Determine if we're in a monorepo by checking the directory structure
+        # Determine if we're in a monorepo
         current_dir = Path.cwd()
-        parent_dir = current_dir.parent
-        grandparent_dir = parent_dir.parent if parent_dir else None
+        monorepo_root = MonorepoHelper.find_monorepo_root(current_dir)
 
-        is_monorepo = False
-
-        if (  # Check if we're in a package directory within a monorepo
-            (current_dir.name == "dsbase" and parent_dir.name == "src" and grandparent_dir)
-            or (parent_dir.name == "packages" and grandparent_dir)
-            or (current_dir / "src" / "dsbase").exists()
-            or (current_dir / "packages").exists()
-        ):
-            is_monorepo = True
-
-        if is_monorepo:
+        if monorepo_root:
+            # We're in a monorepo, use package-specific tag
             return f"{package_name}-{version_prefix}{version}"
+        # Standard repository, use simple version tag
         return f"{version_prefix}{version}"
 
     def create_and_push_tag(self, tag_name: str) -> None:
