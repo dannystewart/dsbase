@@ -50,60 +50,84 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def detect_package(package_arg: str | None = None) -> tuple[str, Path, Path]:
+def detect_package(package_arg: str | None = None) -> tuple[str, Path]:
     """Detect package and relevant paths.
 
     Args:
         package_arg: An optional package name provided by the user.
 
     Returns:
-        A tuple of (package_name, package_path, original_dir).
+        A tuple of (package_name, package_path).
     """
-    original_dir = Path.cwd()
-    monorepo_root = None
-    package_name = package_arg
-
     # Auto-detect package if not provided
-    if package_name is None:
-        from dsbase import LocalLogger
-
-        # Try to determine the package from current directory
-        current_dir = Path.cwd()
-        logger = LocalLogger().get_logger()
-
-        # Check if we're in a package directory
-        if current_dir.name == "dsbase" and current_dir.parent.name == "src":
-            package_name = "dsbase"
-            monorepo_root = current_dir.parent.parent
-        elif current_dir.parent.name == "packages":
-            package_name = current_dir.name
-            monorepo_root = current_dir.parent.parent
-        else:
-            # Check if we're in the monorepo root
-            if (current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists():
-                logger.error("You're in the monorepo root. Please specify a package name.")
-            else:
-                logger.error("Could not auto-detect package. Please specify a package name.")
-            sys.exit(1)
-
-        logger.debug("Auto-detected package: %s", package_name)
-
-    # If we didn't determine monorepo_root yet, assume current directory is monorepo root
-    if monorepo_root is None:
-        monorepo_root = original_dir
-
-    # Determine package path
-    if package_name == "dsbase":
-        package_path = monorepo_root / "src" / "dsbase"
+    if package_arg is None:
+        package_name, package_path = auto_detect_package()
     else:
-        package_path = monorepo_root / "packages" / package_name
+        package_name, package_path = find_from_monorepo_root(package_arg)
 
     # Verify package exists
     if not package_path.exists():
         print(f"Error: Package directory '{package_path}' not found")
         sys.exit(1)
 
-    return package_name, package_path, original_dir
+    return package_name, package_path
+
+
+def auto_detect_package() -> tuple[str, Path]:
+    """Try to determine the package from the current directory."""
+    # Try to determine the package from current directory
+    current_dir = Path.cwd()
+
+    # Check if we're in a package directory
+    if current_dir.name == "dsbase" and current_dir.parent.name == "src":
+        package_name = "dsbase"  # We're already in the package directory
+        package_path = current_dir
+        return package_name, package_path
+    if current_dir.parent.name == "packages":
+        package_name = current_dir.name  # We're already in the package directory
+        package_path = current_dir
+        return package_name, package_path
+    # Check if we're in the monorepo root
+    if (current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists():
+        print("Error: You're in the monorepo root. Please specify a package with --package.")
+    else:
+        print("Error: Could not auto-detect package. Please specify a package with --package.")
+    sys.exit(1)
+
+
+def find_from_monorepo_root(package_name: str) -> tuple[str, Path]:
+    """Find a package by name from the monorepo root."""
+    # First, check if we're already in the monorepo
+    current_dir = Path.cwd()
+
+    # Try to find monorepo root
+    if (current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists():
+        monorepo_root = current_dir  # We're in the monorepo root
+    else:
+        # Try to find monorepo root by going up directories
+        monorepo_root = None
+        test_dir = current_dir
+
+        for _ in range(3):  # Go up to 3 levels to find monorepo root
+            if (test_dir / "src" / "dsbase").exists() or (test_dir / "packages").exists():
+                monorepo_root = test_dir
+                break
+            parent = test_dir.parent
+            if parent == test_dir:  # Reached filesystem root
+                break
+            test_dir = parent
+
+        if monorepo_root is None:
+            print("Error: Could not find monorepo root. Please run from within the monorepo.")
+            sys.exit(1)
+
+    # Now determine package path
+    if package_name == "dsbase":
+        package_path = monorepo_root / "src" / "dsbase"
+    else:
+        package_path = monorepo_root / "packages" / package_name
+
+    return package_name, package_path
 
 
 def main() -> None:
@@ -111,9 +135,10 @@ def main() -> None:
     args = parse_args()
 
     # Detect package and paths
-    package_name, package_path, original_dir = detect_package(args.package)
+    package_name, package_path = detect_package(args.package)
 
-    # Change to package directory
+    # Save the original directory and change to the package directory
+    original_dir = Path.cwd()
     os.chdir(package_path)
 
     try:  # Pass package name to VersionBumper
