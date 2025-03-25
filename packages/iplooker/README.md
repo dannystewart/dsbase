@@ -1,4 +1,4 @@
-# iplookup
+# iplooker
 
 This script will perform a lookup for an IP address using multiple sources. It can be used to get more information about an IP address, including the country, region, city, ISP, and any organization that may be associated to it. It collates the information and combines identical sources.
 
@@ -7,7 +7,7 @@ This script will perform a lookup for an IP address using multiple sources. It c
 Install from `pip` with:
 
 ```bash
-pip install ds-iplookup
+pip install iplooker
 ```
 
 ## Usage
@@ -19,18 +19,18 @@ Here are the commands you can use:
 ```bash
 
 # Running with no arguments will prompt for an IP
-iplookup
+iplooker
 
 # You can specify an IP as part of the command
-iplookup 12.34.56.78
+iplooker 12.34.56.78
 
 # You can use `-m` or `--me` to check your public IP
-iplookup -m
-iplookup --me
+iplooker -m
+iplooker --me
 
 # You can do both with `-l` or `--lookup`
-iplookup -l
-iplookup --lookup
+iplooker -l
+iplooker --lookup
 ```
 
 ## Sources
