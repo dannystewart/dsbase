@@ -37,9 +37,14 @@ class ArgParser(argparse.ArgumentParser):
         self.max_arg_width = kwargs.pop("max_arg_width", self.DEFAULT_MAX_ARG_WIDTH)
         self.padding = kwargs.pop("padding", self.DEFAULT_PADDING)
 
+        # Extract the lines parameter (0 means all lines)
+        self.description_lines = kwargs.pop("lines", 0)
+
         # Process description if it exists
         if "description" in kwargs and kwargs["description"] is not None:
-            kwargs["description"] = self._format_description_text(kwargs["description"])
+            kwargs["description"] = self._format_description_text(
+                kwargs["description"], self.description_lines
+            )
 
         # Use fixed width if provided, otherwise use min_arg_width as starting point
         help_position = self.arg_width if self.arg_width != "auto" else self.min_arg_width
@@ -52,8 +57,13 @@ class ArgParser(argparse.ArgumentParser):
             ),
         )
 
-    def _format_description_text(self, text: str) -> str:
-        """Prepare description text by preserving paragraph structure."""
+    def _format_description_text(self, text: str, lines: int = 0) -> str:
+        """Prepare description text by preserving paragraph structure.
+
+        Args:
+            text: The text to format.
+            lines: Number of paragraphs to include (0 means all).
+        """
         # Remove leading/trailing whitespace and normalize line breaks
         text = text.strip().replace("\r\n", "\n")
 
@@ -62,7 +72,14 @@ class ArgParser(argparse.ArgumentParser):
         text = re.sub(r"(?<!\n)\n(?!\n)", " ", text)
 
         # Normalize multiple consecutive line breaks to exactly two
-        return re.sub(r"\n{2,}", "\n\n", text)
+        text = re.sub(r"\n{2,}", "\n\n", text)
+
+        # If lines is specified, limit to that number of paragraphs
+        if lines > 0:
+            paragraphs = text.split("\n\n")
+            text = "\n\n".join(paragraphs[:lines])
+
+        return text
 
     def format_help(self) -> str:
         """Override format_help to update formatter before generating help text."""
