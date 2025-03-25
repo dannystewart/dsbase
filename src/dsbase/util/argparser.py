@@ -5,6 +5,8 @@ import re
 import textwrap
 from typing import Any, ClassVar
 
+from dsbase.util.setup import get_caller_package_name, get_version_info
+
 
 class ArgParser(argparse.ArgumentParser):
     """Drop-in replacement for ArgumentParser with easier adjustment of column widths.
@@ -56,6 +58,21 @@ class ArgParser(argparse.ArgumentParser):
                 prog, max_help_position=help_position, width=self.max_width
             ),
         )
+
+    def add_argument(self, *args: Any, **kwargs: Any) -> argparse.Action:
+        """Override add_argument to automatically lowercase help text."""
+        # Extract the keep_caps parameter, defaulting to False
+        keep_caps = kwargs.pop("keep_caps", False)
+
+        # Process the help text if it exists and keep_caps is False
+        if "help" in kwargs and kwargs["help"] and not keep_caps:
+            help_text = kwargs["help"]
+            # Only lowercase the first character, preserving the rest
+            if help_text and len(help_text) > 0:
+                kwargs["help"] = help_text[0].lower() + help_text[1:]
+
+        # Call the argparser's add_argument method
+        return super().add_argument(*args, **kwargs)
 
     def _format_description_text(self, text: str, lines: int = 0) -> str:
         """Prepare description text by preserving paragraph structure.
