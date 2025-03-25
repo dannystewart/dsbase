@@ -4,11 +4,11 @@ requires-python = ">=3.12, <4.0"
 
 [manifest]
 members = [
-    "ds-iplookup",
     "dsbase",
     "dsbin",
     "dsupdater",
     "evremixes",
+    "iplooker",
     "pybumper",
     "workcalc",
 ]
@@ -206,11 +206,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e2/a5/5bc097adb4b6d22a24dea53c51f37e480aaec3465285c253098642696423/cryptography-44.0.2-cp39-abi3-win32.whl", hash = "sha256:3dc62975e31617badc19a906481deacdeb80b4bb454394b4098e3f2525a488c5", size = 2773792 },
     { url = "https://files.pythonhosted.org/packages/33/cf/1f7649b8b9a3543e042d3f348e398a061923ac05b507f3f4d95f11938aa9/cryptography-44.0.2-cp39-abi3-win_amd64.whl", hash = "sha256:5f6f90b72d8ccadb9c6e311c775c8305381db88374c65fa1a68250aa8a9cb3a6", size = 3210957 },
 ]
-
-[[package]]
-name = "ds-iplookup"
-version = "0.1.2"
-source = { editable = "packages/iplookup" }
 
 [[package]]
 name = "dsbase"
@@ -419,6 +414,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f3/06/ef91eb8f3feafb736aa33dcb278fc9555d17861aa571b684715d095db24d/inquirer-3.4.0.tar.gz", hash = "sha256:8edc99c076386ee2d2204e5e3653c2488244e82cb197b2d498b3c1b5ffb25d0b", size = 14472 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a4/b2/be907c8c0f8303bc4b10089f5470014c3bf3521e9b8d3decf3037fd94725/inquirer-3.4.0-py3-none-any.whl", hash = "sha256:bb0ec93c833e4ce7b51b98b1644b0a4d2bb39755c39787f6a504e4fee7a11b60", size = 18077 },
+]
+
+[[package]]
+name = "iplooker"
+version = "0.1.1"
+source = { editable = "packages/iplooker" }
+dependencies = [
+    { name = "pycountry" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pycountry", specifier = ">=24.6.1" },
+    { name = "requests", specifier = ">=2.32.3" },
 ]
 
 [[package]]
@@ -754,6 +764,15 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "dsbase", editable = "." }]
+
+[[package]]
+name = "pycountry"
+version = "24.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/57/c389fa68c50590881a75b7883eeb3dc15e9e73a0fdc001cdd45c13290c92/pycountry-24.6.1.tar.gz", hash = "sha256:b61b3faccea67f87d10c1f2b0fc0be714409e8fcdcc1315613174f6466c10221", size = 6043910 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/ec/1fb891d8a2660716aadb2143235481d15ed1cbfe3ad669194690b0604492/pycountry-24.6.1-py3-none-any.whl", hash = "sha256:f1a4fb391cd7214f8eefd39556d740adcc233c778a27f8942c8dca351d6ce06f", size = 6335189 },
+]
 
 [[package]]
 name = "pycparser"
