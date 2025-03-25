@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import os
+import sys
+from pathlib import Path
 
 from dsbase.util import dsbase_setup
 
 from pybumper.bump_type import BumpType
-from pybumper.pybumper import VersionBumper
+from pybumper.version_bumper import VersionBumper
 
 dsbase_setup()
 
@@ -15,6 +18,10 @@ dsbase_setup()
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "package",
+        help="package name to bump (e.g., dsbase, dsbin)",
+    )
     parser.add_argument(
         "type",
         nargs="*",
@@ -45,7 +52,27 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """Perform version bump."""
     args = parse_args()
-    VersionBumper(args).perform_bump()
+
+    # Determine package path
+    if args.package == "dsbase":
+        package_path = Path("src/dsbase")
+    else:
+        package_path = Path(f"packages/{args.package}")
+
+    # Verify package exists
+    if not package_path.exists():
+        print(f"Error: Package directory '{package_path}' not found")
+        sys.exit(1)
+
+    # Change to package directory
+    original_dir = Path.cwd()
+    os.chdir(package_path)
+
+    try:
+        VersionBumper(args).perform_bump()
+    finally:
+        # Change back to original directory
+        os.chdir(original_dir)
 
 
 if __name__ == "__main__":

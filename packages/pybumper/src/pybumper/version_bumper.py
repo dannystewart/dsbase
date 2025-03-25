@@ -6,14 +6,14 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from dsbase import LocalLogger
 from dsbase.env import EnvManager
-from dsbase.log import LocalLogger
 from dsbase.shell import confirm_action
 from dsbase.util import dsbase_setup, handle_interrupt
 
 from pybumper.bump_type import BumpType
-from pybumper.git import GitHelper
-from pybumper.versions import VersionHelper
+from pybumper.git_helper import GitHelper
+from pybumper.version_helper import VersionHelper
 
 if TYPE_CHECKING:
     import argparse
@@ -57,6 +57,9 @@ class VersionBumper:
     def perform_bump(self) -> None:
         """Perform version bump."""
         try:
+            # Get package name from current directory
+            package_name = Path.cwd().name
+
             # Handle --keep-version flag (tag current version without incrementing)
             if self.keep_version:
                 if self.type and self.type != [BumpType.PATCH.value]:
@@ -83,13 +86,14 @@ class VersionBumper:
 
             new_version_str = str(new_version_obj)
 
-            # Show version info
+            # Show version info with package name
+            self.logger.info("Package:         %s", package_name)
             self.logger.info("Current version: %s", self.current_ver_str)
             self.logger.info("Will bump to:    %s", new_version_str)
 
             # Prompt for confirmation unless --force is used
             if not self.force:
-                if not confirm_action("Proceed with version bump?"):
+                if not confirm_action(f"Proceed with version bump for {package_name}?"):
                     self.logger.info("Version bump cancelled.")
                     return
 
@@ -130,8 +134,11 @@ class VersionBumper:
             if bump_type is not None:
                 self._update_version_in_pyproject(self.pyproject_path, new_version)
 
-            # Handle git operations
-            self.git.handle_git_operations(new_version, bump_type)
+            # Extract package name from current directory
+            package_name = Path.cwd().name
+
+            # Handle git operations with package name
+            self.git.handle_git_operations(new_version, bump_type, package_name)
 
             # Log success
             action = "tagged" if bump_type is None else "updated to"

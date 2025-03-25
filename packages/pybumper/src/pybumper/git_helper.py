@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from logging import Logger
 
     from pybumper.bump_type import BumpType
-    from pybumper.versions import VersionHelper
+    from pybumper.version_helper import VersionHelper
 
 
 @dataclass
@@ -187,15 +187,18 @@ class GitHelper:
         self,
         new_version: str,
         bump_type: BumpType | str | list[BumpType] | None,
+        package_name: str,
     ) -> None:
         """Handle git commit, tag, and push operations.
 
         Args:
             new_version: The version string to tag with.
             bump_type: The type of version bump performed.
+            package_name: The name of the package being versioned.
         """
         version_prefix = self.detect_version_prefix()
-        tag_name = f"{version_prefix}{new_version}"
+        # Include package name in tag
+        tag_name = f"{package_name}-{version_prefix}{new_version}"
 
         # Handle version bump commit if needed
         if bump_type is not None:

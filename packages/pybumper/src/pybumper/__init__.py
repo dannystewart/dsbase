@@ -24,4 +24,4 @@ All operations include git tagging and pushing changes to remote repository.
 
 from __future__ import annotations
 
-from .pybumper import VersionBumper
+from .version_bumper import VersionBumper
