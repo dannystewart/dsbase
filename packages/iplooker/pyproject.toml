@@ -1,6 +1,6 @@
 [project]
 name = "iplooker"
-version = "0.1.1"
+version = "0.1.2"
 description = "Look up location, ISP, and more about an IP address from multiple sources"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 license = { text = "MIT" }
