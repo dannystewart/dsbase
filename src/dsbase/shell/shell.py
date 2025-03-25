@@ -11,10 +11,12 @@ from pathlib import Path
 from typing import TypeVar
 
 from dsbase.text import ColorName, color
+from dsbase.util.deprecate import deprecated
 
 T = TypeVar("T")
 
 
+@deprecated("Recommended to just use pathlib directly instead.")
 def read_file_content(filepath: str) -> str:
     """Read the contents of a file.
 
@@ -28,6 +30,7 @@ def read_file_content(filepath: str) -> str:
         return file.read()
 
 
+@deprecated("Recommended to just use pathlib directly instead.")
 def write_to_file(filepath: str, content: str) -> None:
     """Write content to a file.
 

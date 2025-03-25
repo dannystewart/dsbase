@@ -5,6 +5,7 @@ from functools import partial
 from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
+# Sorry if you live anywhere else!
 TZ = ZoneInfo("America/New_York")
 
 
