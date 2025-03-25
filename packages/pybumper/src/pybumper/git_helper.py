@@ -161,8 +161,27 @@ class GitHelper:
         # Stage only pyproject.toml
         subprocess.run(["git", "add", "pyproject.toml"], check=True)
 
-        # Use custom message if provided, otherwise use default with package name
-        message = self.commit_message or f"Bump {package_name} to {new_version}"
+        # Determine if we're in a monorepo
+        current_dir = Path.cwd()
+        parent_dir = current_dir.parent
+        grandparent_dir = parent_dir.parent if parent_dir else None
+
+        is_monorepo = False
+        if (
+            (current_dir.name == "dsbase" and parent_dir.name == "src" and grandparent_dir)
+            or (parent_dir.name == "packages" and grandparent_dir)
+            or ((current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists())
+        ):
+            is_monorepo = True
+
+        # Use custom message if provided, otherwise use default
+        if self.commit_message:
+            message = self.commit_message
+        elif is_monorepo:
+            message = f"Bump {package_name} to {new_version}"
+        else:
+            message = f"Bump version to {new_version}"
+
         subprocess.run(["git", "commit", "-m", message], check=True)
 
         return has_other_changes
@@ -175,10 +194,28 @@ class GitHelper:
             package_name: The package name.
 
         Returns:
-            The name that will be used for the tag, in the format 'package_name-vX.Y.Z'.
+            The tag name in format 'package_name-vX.Y.Z' for monorepo or 'vX.Y.Z' for standard repo.
         """
         version_prefix = self.detect_version_prefix()
-        return f"{package_name}-{version_prefix}{version}"
+
+        # Determine if we're in a monorepo by checking the directory structure
+        current_dir = Path.cwd()
+        parent_dir = current_dir.parent
+        grandparent_dir = parent_dir.parent if parent_dir else None
+
+        is_monorepo = False
+
+        if (  # Check if we're in a package directory within a monorepo
+            (current_dir.name == "dsbase" and parent_dir.name == "src" and grandparent_dir)
+            or (parent_dir.name == "packages" and grandparent_dir)
+            or (current_dir / "src" / "dsbase").exists()
+            or (current_dir / "packages").exists()
+        ):
+            is_monorepo = True
+
+        if is_monorepo:
+            return f"{package_name}-{version_prefix}{version}"
+        return f"{version_prefix}{version}"
 
     def create_and_push_tag(self, tag_name: str) -> None:
         """Create and push a git tag."""

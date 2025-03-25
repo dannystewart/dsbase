@@ -75,18 +75,25 @@ def detect_package(package_arg: str | None = None) -> tuple[str, Path]:
 
 def auto_detect_package() -> tuple[str, Path]:
     """Try to determine the package from the current directory."""
-    # Try to determine the package from current directory
     current_dir = Path.cwd()
 
-    # Check if we're in a package directory
+    # Check if we're in a package directory in a monorepo
     if current_dir.name == "dsbase" and current_dir.parent.name == "src":
-        package_name = "dsbase"  # We're already in the package directory
+        package_name = "dsbase"
         package_path = current_dir
         return package_name, package_path
     if current_dir.parent.name == "packages":
-        package_name = current_dir.name  # We're already in the package directory
+        package_name = current_dir.name
         package_path = current_dir
         return package_name, package_path
+
+    # Check if this is a standard repository (has pyproject.toml)
+    if (current_dir / "pyproject.toml").exists():
+        # We're in a standard repository root
+        package_name = current_dir.name  # Use directory name as package name
+        package_path = current_dir  # Use current directory as package path
+        return package_name, package_path
+
     # Check if we're in the monorepo root
     if (current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists():
         print("Error: You're in the monorepo root. Please specify a package with --package.")
