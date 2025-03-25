@@ -1,7 +1,7 @@
 [project]
 name = "dsbase"
 version = "0.3.7"
-description = "Python utilities and helpers for logging, environment management, file operations, and more"
+description = "Delightful Python utility library with power and personality"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 readme = "README.md"
 urls = { repository = "https://github.com/dannystewart/dsbase" }
