@@ -74,7 +74,7 @@ class GitHelper:
             return "v"
 
     @handle_interrupt()
-    def tag_current_version(self) -> None:
+    def tag_current_version(self, package_name: str) -> None:
         """Tag and push the current version without incrementing.
 
         Creates a new commit with the current version number, then tags and pushes it.
@@ -104,7 +104,7 @@ class GitHelper:
 
         # Create a new commit with the current version number if there are changes
         try:
-            has_other_changes = self.commit_version_change(current_version)
+            has_other_changes = self.commit_version_change(current_version, package_name)
             if has_other_changes:
                 self.logger.info(
                     "Committed pyproject.toml without version change. "
@@ -130,11 +130,12 @@ class GitHelper:
                 current_version,
             )
 
-    def commit_version_change(self, new_version: str) -> bool:
+    def commit_version_change(self, new_version: str, package_name: str) -> bool:
         """Commit version change to git.
 
         Args:
             new_version: The new version string.
+            package_name: The name of the package being versioned.
 
         Returns:
             True if there were other uncommitted changes, False otherwise.
@@ -160,8 +161,8 @@ class GitHelper:
         # Stage only pyproject.toml
         subprocess.run(["git", "add", "pyproject.toml"], check=True)
 
-        # Use custom message if provided, otherwise use default
-        message = self.commit_message or f"Bump version to {new_version}"
+        # Use custom message if provided, otherwise use default with package name
+        message = self.commit_message or f"Bump {package_name} to {new_version}"
         subprocess.run(["git", "commit", "-m", message], check=True)
 
         return has_other_changes
@@ -213,7 +214,7 @@ class GitHelper:
 
         # Handle version bump commit if needed
         if bump_type is not None:
-            has_other_changes = self.commit_version_change(new_version)
+            has_other_changes = self.commit_version_change(new_version, package_name)
             if has_other_changes:
                 self.logger.info(
                     "Committed pyproject.toml with the version bump. "
