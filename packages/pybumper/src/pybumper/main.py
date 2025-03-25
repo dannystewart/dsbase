@@ -19,15 +19,15 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "package",
-        nargs="?",
-        help="package name to bump (e.g., dsbase, dsbin). Auto-detected if not provided.",
-    )
-    parser.add_argument(
         "type",
         nargs="*",
         default=[BumpType.PATCH],
         help="version bump type(s): major, minor, patch, dev, alpha, beta, rc, post, or x.y.z",
+    )
+    parser.add_argument(
+        "-p",
+        "--package",
+        help="package name to bump (e.g., dsbase, dsbin). Auto-detected if not provided.",
     )
     parser.add_argument("-f", "--force", action="store_true", help="skip confirmation prompt")
     parser.add_argument(
@@ -116,11 +116,9 @@ def main() -> None:
     # Change to package directory
     os.chdir(package_path)
 
-    try:
-        # Pass package name to VersionBumper
+    try:  # Pass package name to VersionBumper
         VersionBumper(args, package_name).perform_bump()
-    finally:
-        # Change back to original directory
+    finally:  # Change back to original directory
         os.chdir(original_dir)
 
 
