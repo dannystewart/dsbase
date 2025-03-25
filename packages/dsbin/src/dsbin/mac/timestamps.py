@@ -38,7 +38,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from dsbase import ArgParser
-from dsbase.files.macos import get_timestamps, set_timestamps
+from dsbase.mac import get_timestamps, set_timestamps
 from dsbase.text import ColorName, color
 from dsbase.util import catch_errors, dsbase_setup
 
@@ -153,34 +153,43 @@ def copy_times_between_directories(src_dir: Path, dst_dir: Path) -> None:
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments for the timestamp utility."""
     parser = ArgParser(
-        description="Get or set file timestamps on macOS, or copy them between files.",
-        arg_width=30,
-        max_width=120,
+        description="Get or set file timestamps on macOS, or copy them between files."
     )
+
+    # Positional argument for the file
     parser.add_argument("file", help="File to get or set timestamps for", nargs="?")
-    parser.add_argument("creation", help="Creation timestamp to set", default=None)
-    parser.add_argument("modification", help="Modification timestamp to set", default=None)
+
+    # Optional arguments for setting timestamps
+    parser.add_argument("-c", "--creation", help="Creation timestamp to set", default=None)
+    parser.add_argument("-m", "--modification", help="Modification timestamp to set", default=None)
+
+    # Optional arguments for copying timestamps
     parser.add_argument(
-        "copy", help="Copy timestamps from one file to another", action="store_true"
+        "--copy", help="Copy timestamps from one file to another", action="store_true"
     )
     parser.add_argument(
-        "copy_from", help="Source file to copy timestamps from", default=None, dest="from_file"
+        "--copy-from", dest="from_file", help="Source file to copy timestamps from", default=None
     )
     parser.add_argument(
-        "copy_to", help="Destination file to copy timestamps to", default=None, dest="to_file"
+        "--copy-to", dest="to_file", help="Destination file to copy timestamps to", default=None
+    )
+
+    # Optional arguments for directory operations
+    parser.add_argument(
+        "--src-dir", help="Source directory for copying timestamps from", default=None
     )
     parser.add_argument(
-        "src_dir", help="Source directory for copying timestamps from", default=None
+        "--dst-dir", help="Destination directory for copying timestamps to", default=None
+    )
+
+    # Additional options
+    parser.add_argument(
+        "--ctime-to-mtime", help="Copy creation time to modification time", action="store_true"
     )
     parser.add_argument(
-        "dst_dir", help="Destination directory for copying timestamps to", default=None
+        "--mtime-to-ctime", help="Copy modification time to creation time", action="store_true"
     )
-    parser.add_argument(
-        "ctime_to_mtime", help="Copy creation time to modification time", action="store_true"
-    )
-    parser.add_argument(
-        "mtime_to_ctime", help="Copy modification time to creation time", action="store_true"
-    )
+
     return parser.parse_args()
 
 
