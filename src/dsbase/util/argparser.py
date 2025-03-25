@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import textwrap
 from typing import Any, ClassVar
 
@@ -36,6 +37,10 @@ class ArgParser(argparse.ArgumentParser):
         self.max_arg_width = kwargs.pop("max_arg_width", self.DEFAULT_MAX_ARG_WIDTH)
         self.padding = kwargs.pop("padding", self.DEFAULT_PADDING)
 
+        # Process description if it exists
+        if "description" in kwargs and kwargs["description"] is not None:
+            kwargs["description"] = self._format_description_text(kwargs["description"])
+
         # Use fixed width if provided, otherwise use min_arg_width as starting point
         help_position = self.arg_width if self.arg_width != "auto" else self.min_arg_width
 
@@ -46,6 +51,18 @@ class ArgParser(argparse.ArgumentParser):
                 prog, max_help_position=help_position, width=self.max_width
             ),
         )
+
+    def _format_description_text(self, text: str) -> str:
+        """Prepare description text by preserving paragraph structure."""
+        # Remove leading/trailing whitespace and normalize line breaks
+        text = text.strip().replace("\r\n", "\n")
+
+        # Replace single line breaks with spaces (within paragraphs)
+        # But preserve paragraph breaks (double line breaks)
+        text = re.sub(r"(?<!\n)\n(?!\n)", " ", text)
+
+        # Normalize multiple consecutive line breaks to exactly two
+        return re.sub(r"\n{2,}", "\n\n", text)
 
     def format_help(self) -> str:
         """Override format_help to update formatter before generating help text."""
@@ -110,6 +127,21 @@ class CustomHelpFormatter(argparse.HelpFormatter):
     def __init__(self, prog: str, max_help_position: int = 24, width: int = 120):
         super().__init__(prog, max_help_position=max_help_position, width=width)
         self.custom_max_help_position = max_help_position
+
+    def _format_text(self, text: str) -> str:
+        """Override to handle paragraph breaks in description and epilog text."""
+        # Split text into paragraphs
+        paragraphs = text.split("\n\n")
+        result = []
+
+        # Process each paragraph with textwrap
+        for paragraph in paragraphs:
+            # Wrap each paragraph to the appropriate width
+            wrapped = textwrap.fill(paragraph, self._width)
+            result.append(wrapped)
+
+        # Join paragraphs with double newlines and add a newline at the end
+        return "\n\n".join(result) + "\n"
 
     def _split_lines(self, text: str, width: int) -> list[str]:
         return textwrap.wrap(text, width)
