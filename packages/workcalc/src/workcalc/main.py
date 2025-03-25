@@ -6,9 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from dsbase import LocalLogger, Text, TimeAwareLogger
 from dsbase.animate import walking_man
-from dsbase.log import LocalLogger, TimeAwareLogger
-from dsbase.text import Text
 from dsbase.util import dsbase_setup
 
 from workcalc.data import (

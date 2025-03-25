@@ -5,8 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from dsbase.files import list_files
-from dsbase.log import LocalLogger
+from dsbase import FileManager, LocalLogger
 from dsbase.mac import get_timestamps
 
 from workcalc.data import WorkItem
@@ -74,7 +73,7 @@ class BounceDataSource(DataSourcePlugin):
 
     def _find_audio_files(self) -> Iterator[Path]:
         """Find all audio files in the directory."""
-        files = list_files(
+        files = FileManager().list(
             self.directory,
             exts=self.BOUNCE_EXTENSIONS,
             recursive=True,

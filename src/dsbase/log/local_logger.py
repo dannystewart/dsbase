@@ -28,7 +28,7 @@ class LocalLogger(metaclass=Singleton):
     a custom formatter that includes the time, logger name, function name, and log message.
 
     Usage:
-        from dsbase.log import LocalLogger
+        from dsbase import LocalLogger
         logger = LocalLogger().get_logger(self.__class__.__name__)
         logger = LocalLogger().get_logger("MyClassLogger", advanced=True)
     """

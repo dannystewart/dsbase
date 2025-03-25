@@ -71,7 +71,7 @@ class EnvManager(metaclass=Singleton):
             self.env_file = self.DEFAULT_ENV_FILES
             self.logger.debug("Using default env files: %s", [str(f) for f in self.env_file])
 
-        env_files = [self.env_file] if isinstance(self.env_file, (str, Path)) else self.env_file
+        env_files = [self.env_file] if isinstance(self.env_file, str | Path) else self.env_file
         for file in env_files:
             full_path = Path(file).expanduser() if isinstance(file, str) else file.expanduser()
 

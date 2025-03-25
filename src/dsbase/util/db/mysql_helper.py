@@ -10,7 +10,7 @@ from mysql.connector import Error as MySQLError
 from mysql.connector import MySQLConnection
 from mysql.connector.pooling import MySQLConnectionPool, PooledMySQLConnection
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 from dsbase.util.db import DatabaseError, QueryResult
 
 if TYPE_CHECKING:

@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 
 from workcalc import DataSourcePlugin
 from workcalc.data import WorkItem

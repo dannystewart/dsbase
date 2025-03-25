@@ -5,7 +5,7 @@ from pathlib import Path
 from threading import Lock
 from typing import TYPE_CHECKING, Any
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 from dsbase.util.deprecate import not_yet_implemented
 from dsbase.util.singleton import Singleton
 

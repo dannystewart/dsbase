@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import requests
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 
 
 class TelegramAPIHelper:

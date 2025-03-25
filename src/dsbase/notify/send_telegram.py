@@ -6,7 +6,7 @@ from pathlib import Path
 
 import requests
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 
 from .telegram_api import TelegramAPIHelper
 

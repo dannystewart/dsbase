@@ -4,8 +4,8 @@ import subprocess
 from collections import defaultdict
 from pathlib import Path
 
+from dsbase import LocalLogger
 from dsbase.animate import conditional_walking
-from dsbase.log import LocalLogger
 from dsbase.media.video_helper import VideoHelper
 from dsbase.shell.progress import halo_progress
 

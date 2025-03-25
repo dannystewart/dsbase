@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from email.mime.text import MIMEText
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 
 
 class MailSender:

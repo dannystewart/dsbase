@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from dsbase.log import LocalLogger
+from dsbase import LocalLogger
 from dsbase.util.db import DatabaseError, QueryResult
 
 if TYPE_CHECKING:

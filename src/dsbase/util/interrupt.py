@@ -64,7 +64,7 @@ def handle_interrupt(
                 if logger:  # Use supplied logger
                     logger.error(message)
                 else:  # Create new logger
-                    from dsbase.log import LocalLogger
+                    from dsbase import LocalLogger
 
                     LocalLogger().get_logger(simple=True).error(message)
                 sys.exit(exit_code)
@@ -106,7 +106,7 @@ def async_interrupt_handler[T](
             if logger:  # Use supplied logger
                 logger.error(message)
             else:  # Create new logger
-                from dsbase.log import LocalLogger
+                from dsbase import LocalLogger
 
                 LocalLogger().get_logger(simple=True).error(message)
             sys.exit(exit_code)

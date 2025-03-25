@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from dsbase.env import EnvManager
 from dsbase.files import FileManager
-from dsbase.log import LocalLogger
+from dsbase.log import LocalLogger, TimeAwareLogger
 from dsbase.media import MediaManager
 from dsbase.paths import PathKeeper
 from dsbase.text import Text

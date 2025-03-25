@@ -15,8 +15,7 @@ import argparse
 
 import requests
 
-from dsbase.files import FileManager
-from dsbase.log import LocalLogger
+from dsbase import FileManager, LocalLogger
 from dsbase.shell import confirm_action
 from dsbase.text.diff import show_diff
 

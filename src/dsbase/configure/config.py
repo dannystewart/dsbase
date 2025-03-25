@@ -9,10 +9,9 @@ import tomlkit
 import yaml
 from tomlkit import TOMLDocument
 
+from dsbase import LocalLogger, PathKeeper
 from dsbase.configure.attr_dict import AttrDict
 from dsbase.configure.watchers import ConfigWatcher
-from dsbase.log import LocalLogger
-from dsbase.paths import PathKeeper
 from dsbase.text import Text
 from dsbase.util.deprecate import not_yet_implemented
 
@@ -352,7 +351,7 @@ class Config:
             return default
         for k in keys:
             current_path.append(k)
-            if isinstance(value, (AttrDict, dict)) and k in value:
+            if isinstance(value, AttrDict | dict) and k in value:
                 value = value[k]
             else:
                 full_path = ".".join(current_path)

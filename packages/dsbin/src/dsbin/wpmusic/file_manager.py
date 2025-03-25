@@ -9,8 +9,8 @@ import paramiko  # type: ignore
 import pyperclip
 from scp import SCPClient
 
+from dsbase import LocalLogger
 from dsbase.files import delete_files
-from dsbase.log import LocalLogger
 from dsbase.text import color as colored
 from dsbase.util import handle_interrupt
 

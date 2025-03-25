@@ -91,7 +91,7 @@ def _log_and_warn(
     function: str | None = None,
 ) -> None:
     """Log a message and emit a warning using the LocalLogger."""
-    from dsbase.log import LocalLogger
+    from dsbase import LocalLogger
 
     # Create a context-aware message with location information
     short_name = Path(filename).name if filename else "unknown"

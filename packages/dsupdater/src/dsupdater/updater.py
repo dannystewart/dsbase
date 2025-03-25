@@ -10,9 +10,9 @@ import shutil
 import time
 from typing import TYPE_CHECKING
 
-from dsbase.log import LocalLogger
-from dsbase.text import Text, color, print_colored
-from dsbase.util import ArgParser, dsbase_setup, handle_interrupt
+from dsbase import ArgParser, LocalLogger, Text
+from dsbase.text import color, print_colored
+from dsbase.util import dsbase_setup, handle_interrupt
 
 from dsupdater.privilege_helper import PrivilegeHelper
 from dsupdater.update_manager import UpdateManager
