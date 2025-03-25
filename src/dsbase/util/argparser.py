@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import textwrap
-from typing import Any
+from typing import Any, ClassVar
 
 
 class ArgParser(argparse.ArgumentParser):
@@ -24,25 +24,28 @@ class ArgParser(argparse.ArgumentParser):
         parser = ArgParser(description=__doc__, arg_width=24, max_width=120)
     """
 
+    DEFAULT_MAX_WIDTH: ClassVar[int] = 120
+    DEFAULT_MIN_ARG_WIDTH: ClassVar[int] = 15
+    DEFAULT_MAX_ARG_WIDTH: ClassVar[int] = 35
+    DEFAULT_PADDING: ClassVar[int] = 4
+
     def __init__(self, *args: Any, **kwargs: Any):
         self.arg_width = kwargs.pop("arg_width", "auto")
-        self.max_width = kwargs.pop("max_width", 120)
-        self.min_arg_width = kwargs.pop("min_arg_width", 15)
-        self.max_arg_width = kwargs.pop("max_arg_width", 35)
-        self.padding = kwargs.pop("padding", 4)
+        self.max_width = kwargs.pop("max_width", self.DEFAULT_MAX_WIDTH)
+        self.min_arg_width = kwargs.pop("min_arg_width", self.DEFAULT_MIN_ARG_WIDTH)
+        self.max_arg_width = kwargs.pop("max_arg_width", self.DEFAULT_MAX_ARG_WIDTH)
+        self.padding = kwargs.pop("padding", self.DEFAULT_PADDING)
 
-        # Initialize with a temporary formatter
+        # If a fixed width is provided, use it directly, starting with minimum width
+        help_position = self.arg_width if self.arg_width != "auto" else self.min_arg_width
+
         super().__init__(
             *args,
             **kwargs,
             formatter_class=lambda prog: CustomHelpFormatter(
-                prog, max_help_position=self.min_arg_width, width=self.max_width
+                prog, max_help_position=help_position, width=self.max_width
             ),
         )
-
-    def add_argument(self, *args: Any, **kwargs: Any) -> argparse.Action:
-        """Override add_argument to track all arguments for auto-width calculation."""
-        return super().add_argument(*args, **kwargs)
 
     def format_help(self) -> str:
         """Override format_help to update formatter before generating help text."""
@@ -56,7 +59,7 @@ class ArgParser(argparse.ArgumentParser):
             self._update_formatter()
         return super().print_help(file)
 
-    def _update_formatter(self):
+    def _update_formatter(self) -> None:
         """Calculate the optimal argument width based on current arguments."""
         if not self._actions:
             return
@@ -72,7 +75,7 @@ class ArgParser(argparse.ArgumentParser):
                 length = max(len(action.dest), length)
 
             # Account for metavar if present
-            if action.metavar:
+            if action.metavar is not None:
                 metavar_str = action.metavar
                 if isinstance(metavar_str, tuple):
                     metavar_str = " ".join(metavar_str)
@@ -86,10 +89,13 @@ class ArgParser(argparse.ArgumentParser):
         # Add padding and clamp to min/max
         optimal_width = min(self.max_arg_width, max(self.min_arg_width, max_length + self.padding))
 
-        # Update the formatter class
-        self.formatter_class = lambda prog: CustomHelpFormatter(
+        # Create a new formatter with the calculated width and replace the existing one
+        self._formatter_class = lambda prog: CustomHelpFormatter(
             prog, max_help_position=optimal_width, width=self.max_width
         )
+
+        # Update the existing formatter instance
+        self._get_formatter = lambda: self._formatter_class(self.prog)
 
 
 class CustomHelpFormatter(argparse.HelpFormatter):
@@ -108,9 +114,12 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         return textwrap.wrap(text, width)
 
     def _format_action(self, action: argparse.Action) -> str:
+        # Get the formatted action from the parent class
         parts = super()._format_action(action)
-        if action.help:
+
+        if action.help:  # If there's help text, ensure proper spacing
             help_position = parts.find(action.help)
-            space_to_insert = max(self.custom_max_help_position - help_position, 0)
-            parts = parts[:help_position] + (" " * space_to_insert) + parts[help_position:]
+            if help_position > 0:  # Only adjust if we found the help text
+                space_to_insert = max(self.custom_max_help_position - help_position, 0)
+                parts = parts[:help_position] + (" " * space_to_insert) + parts[help_position:]
         return parts
