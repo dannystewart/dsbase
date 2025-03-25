@@ -152,9 +152,7 @@ def copy_times_between_directories(src_dir: Path, dst_dir: Path) -> None:
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments for the timestamp utility."""
-    parser = ArgParser(
-        description="Get or set file timestamps on macOS, or copy them between files."
-    )
+    parser = ArgParser(description=__doc__)
 
     # Positional argument for the file
     parser.add_argument("file", help="File to get or set timestamps for", nargs="?")
