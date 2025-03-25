@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 
+from dsbase.log.local_logger import LocalLogger
 from dsbase.util import dsbase_setup
 
 from pybumper.bump_type import BumpType
@@ -20,7 +21,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "package",
-        help="package name to bump (e.g., dsbase, dsbin)",
+        nargs="?",
+        help="package name to bump (e.g., dsbase, dsbin). Auto-detected if not provided.",
     )
     parser.add_argument(
         "type",
@@ -53,11 +55,42 @@ def main() -> None:
     """Perform version bump."""
     args = parse_args()
 
+    # Save original directory
+    original_dir = Path.cwd()
+    monorepo_root = None
+
+    # Auto-detect package if not provided
+    if args.package is None:
+        # Try to determine the package from current directory
+        current_dir = Path.cwd()
+        logger = LocalLogger().get_logger()
+
+        # Check if we're in a package directory
+        if current_dir.name == "dsbase" and current_dir.parent.name == "src":
+            args.package = "dsbase"
+            monorepo_root = current_dir.parent.parent
+        elif current_dir.parent.name == "packages":
+            args.package = current_dir.name
+            monorepo_root = current_dir.parent.parent
+        else:
+            # Check if we're in the monorepo root
+            if (current_dir / "src" / "dsbase").exists() or (current_dir / "packages").exists():
+                logger.error("You're in the monorepo root. Please specify a package name.")
+            else:
+                logger.error("Could not auto-detect package. Please specify a package name.")
+            sys.exit(1)
+
+        logger.debug("Auto-detected package: %s", args.package)
+
+    # If we didn't determine monorepo_root yet, assume current directory is monorepo root
+    if monorepo_root is None:
+        monorepo_root = original_dir
+
     # Determine package path
     if args.package == "dsbase":
-        package_path = Path("src/dsbase")
+        package_path = monorepo_root / "src" / "dsbase"
     else:
-        package_path = Path(f"packages/{args.package}")
+        package_path = monorepo_root / "packages" / args.package
 
     # Verify package exists
     if not package_path.exists():
@@ -65,7 +98,6 @@ def main() -> None:
         sys.exit(1)
 
     # Change to package directory
-    original_dir = Path.cwd()
     os.chdir(package_path)
 
     try:
