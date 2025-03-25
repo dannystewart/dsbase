@@ -49,7 +49,14 @@ class EnvVar:
 
 @dataclass
 class EnvManager(metaclass=Singleton):
-    """Manage environment variables in a friendly way."""
+    """EnvManager is a utility class that manages environment variables in a friendly way.
+
+    This class allows you to add environment variables with type conversion, validation, and secret
+    masking. Variables can be accessed as attributes. Defaults to loading environment variables from
+    `.env` and `~/.env`, but also uses the current environment and allows specifying custom files.
+
+    For detailed logging, set the ENV_DEBUG environment variable to "1".
+    """
 
     DEFAULT_ENV_FILES: ClassVar[list[Path]] = [Path(".env"), Path("~/.env").expanduser()]
 
@@ -62,7 +69,8 @@ class EnvManager(metaclass=Singleton):
 
     def __post_init__(self):
         """Initialize with default environment variables."""
-        self.logger = LocalLogger().get_logger(level=self.log_level)
+        env_debug = self.validate_bool(os.environ.get("ENV_DEBUG", "0"))
+        self.logger = LocalLogger().get_logger(level="DEBUG" if env_debug else "INFO")
         self._load_env_files()
 
     def _load_env_files(self) -> None:
