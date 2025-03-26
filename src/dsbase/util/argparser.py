@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import textwrap
 from typing import Any, ClassVar
 
 from dsbase.util.setup import get_caller_package_name, get_version_info
@@ -166,67 +167,42 @@ class ArgParser(argparse.ArgumentParser):
 
 
 class CustomHelpFormatter(argparse.HelpFormatter):
-    """Format a help message for argparse."""
+    """Format a help message for argparse.
+
+    This help formatter allows for customizing the column widths of arguments and help text in an
+    argument parser. You can use it by passing it as the formatter_class to ArgumentParser, but it's
+    designed for the custom ArgParser class and not intended to be used directly.
+    """
 
     def __init__(self, prog: str, max_help_position: int = 24, width: int = 120):
         super().__init__(prog, max_help_position=max_help_position, width=width)
         self.custom_max_help_position = max_help_position
-        self.custom_width = width
 
-        # Store a reference to the parser that created this formatter
-        # We'll use this to access DEFAULT_MIN_ARG_WIDTH
-        self.parser = None
+    def _format_text(self, text: str) -> str:
+        """Override to handle paragraph breaks in description and epilog text."""
+        # Split text into paragraphs
+        paragraphs = text.split("\n\n")
+        result = []
+
+        # Process each paragraph with textwrap
+        for paragraph in paragraphs:
+            # Wrap each paragraph to the appropriate width
+            wrapped = textwrap.fill(paragraph, self._width)
+            result.append(wrapped)
+
+        # Join paragraphs with double newlines and add a newline at the end
+        return "\n\n".join(result) + "\n"
+
+    def _split_lines(self, text: str, width: int) -> list[str]:
+        return textwrap.wrap(text, width)
 
     def _format_action(self, action: argparse.Action) -> str:
-        # Calculate the action string (flags and metavar)
-        action_header = self._format_action_invocation(action)
+        # Get the formatted action from the parent class
+        parts = super()._format_action(action)
 
-        # Determine the indentation of help text
-        indent = " " * self._current_indent
-
-        # Parts will store the lines of our formatted action
-        parts = [indent + action_header]
-
-        # If there's no help text, just return the action header
-        if not action.help:
-            parts.append("\n")
-            return "".join(parts)
-
-        # Get the parser's min_arg_width if available, otherwise use a default
-        min_arg_width = 18  # Default value
-        if hasattr(self, "parser") and self.parser and hasattr(self.parser, "min_arg_width"):
-            min_arg_width = self.parser.min_arg_width
-
-        # Calculate help position based on argument length plus padding
-        action_length = len(indent) + len(action_header)
-        padding = 2  # Consistent padding after each argument
-
-        # Calculate help position, respecting min_arg_width
-        help_position = max(min_arg_width, action_length + padding)
-
-        # But don't exceed max_help_position
-        help_position = min(self.custom_max_help_position, help_position)
-
-        help_indent = " " * help_position
-
-        # If the action header plus padding exceeds our calculated help position,
-        # put help on next line
-        if action_length + padding > help_position:
-            parts.extend(("\n", help_indent))
-        else:
-            # Add padding spaces
-            padding = help_position - action_length
-            parts.append(" " * padding)
-
-        # Add the help text, properly wrapped
-        help_lines = self._split_lines(action.help, self._width - help_position)
-        parts.append(help_lines[0])
-
-        # If there are additional help lines, add them with proper indentation
-        for line in help_lines[1:]:
-            parts.extend(("\n", help_indent, line))
-
-        # Add a final newline
-        parts.append("\n")
-
-        return "".join(parts)
+        if action.help:  # If there's help text, ensure proper spacing
+            help_position = parts.find(action.help)
+            if help_position > 0:  # Only adjust if we found the help text
+                space_to_insert = max(self.custom_max_help_position - help_position, 0)
+                parts = parts[:help_position] + (" " * space_to_insert) + parts[help_position:]
+        return parts
