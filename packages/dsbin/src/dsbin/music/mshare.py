@@ -9,13 +9,12 @@ bit depth conversion for 24-bit files.
 
 from __future__ import annotations
 
-import argparse
 import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import inquirer
 
@@ -25,6 +24,10 @@ from dsbase.media import find_bit_depth
 from dsbase.shell import halo_progress
 from dsbase.text import color as colored
 from dsbase.util import dsbase_setup, handle_interrupt
+from dsbase.util.argparser import ArgParser
+
+if TYPE_CHECKING:
+    import argparse
 
 dsbase_setup()
 
@@ -257,9 +260,7 @@ class MusicShare:
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="A script for sharing music bounces in a variety of formats."
-    )
+    parser = ArgParser(description=__doc__)
     parser.add_argument("input_file", help="the file to convert")
     parser.add_argument("--upload", action="store_true", help="use URL-safe filename for uploading")
     return parser.parse_args()
