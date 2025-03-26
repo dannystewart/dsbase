@@ -108,7 +108,7 @@ def show_walking_man(
             character = character_left if direction == -1 else character_right
 
 
-def conditional_walking(
+def conditional_walking_man(
     condition: bool,
     message: str | None = None,
     color: ColorName | None = None,

@@ -5,7 +5,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from dsbase import LocalLogger
-from dsbase.animate import conditional_walking
+from dsbase.animate import conditional_walking_man
 from dsbase.media.video_helper import VideoHelper
 from dsbase.shell.progress import halo_progress
 
@@ -184,7 +184,7 @@ class MediaManager:
             input_file: The path to the input file.
             show_animation: Whether to show the loading animation. Defaults to False.
         """
-        with conditional_walking(show_animation):
+        with conditional_walking_man(show_animation):
             bit_depth_command = (  # First, try to get the bit depth in the usual way
                 f"ffprobe -v error -select_streams a:0 -show_entries stream=bits_per_raw_sample "
                 f'-of default=noprint_wrappers=1:nokey=1 "{input_file}"'
