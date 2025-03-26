@@ -40,7 +40,7 @@ class ArgParser(argparse.ArgumentParser):
 
         # Version handling options
         self.add_version = kwargs.pop("add_version", True)
-        self.version_flags = kwargs.pop("version_flags", ["-v", "--version"])
+        self.version_flags = kwargs.pop("version_flags", ["--version"])
 
         # Extract the lines parameter (0 means all lines)
         self.description_lines = kwargs.pop("lines", 0)
