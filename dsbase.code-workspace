@@ -36,29 +36,30 @@
         ],
         "python.analysis.packageIndexDepths": [
             {
-                "name": "dsbase",
                 "depth": 5,
+                "name": "dsbase"
             },
             {
-                "name": "dsbin",
                 "depth": 5,
+                "name": "dsbin"
             },
             {
-                "name": "dsupdater",
                 "depth": 5,
+                "name": "dsupdater"
             },
             {
-                "name": "iplookup",
                 "depth": 5,
+                "name": "iplookup"
             },
             {
-                "name": "pybumper",
                 "depth": 5,
+                "name": "pybumper"
             },
             {
-                "name": "workcalc",
                 "depth": 5,
+                "name": "workcalc"
             },
-        ]
+        ],
+        "python.defaultInterpreterPath": ".venv/bin/python"
     }
 }
