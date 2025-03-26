@@ -5,8 +5,6 @@ import re
 import textwrap
 from typing import Any, ClassVar
 
-from dsbase.util.setup import get_caller_package_name, get_version_info
-
 
 class ArgParser(argparse.ArgumentParser):
     """Drop-in replacement for ArgumentParser with easier adjustment of column widths.
@@ -85,11 +83,17 @@ class ArgParser(argparse.ArgumentParser):
 
     def _add_version_argument(self) -> None:
         """Add a version argument that automatically detects package version."""
-        package_name = get_caller_package_name()
-        version_info = get_version_info(package_name)
+        from dsbase.version import VersionChecker
 
-        version_string = str(version_info)
-        self.add_argument(*self.version_flags, action="version", version=version_string)
+        # Get the package name from the script name
+        package_name = VersionChecker.get_caller_package_name()
+
+        # Use the VersionChecker to get comprehensive version info
+        checker = VersionChecker()
+        version_info = checker.check_package(package_name)
+
+        # Add the version argument
+        self.add_argument(*self.version_flags, action="version", version=str(version_info))
 
     def _format_description_text(self, text: str, lines: int = 0) -> str:
         """Prepare description text by preserving paragraph structure.
