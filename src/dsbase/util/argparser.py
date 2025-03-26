@@ -15,7 +15,8 @@ class ArgParser(argparse.ArgumentParser):
         arg_width: The width of the argument column in the help text. Defaults to 'auto',
                    which automatically determines the optimal width based on arguments.
         max_width: The maximum width of the help text.
-        min_arg_width: Minimum width for argument column when using 'auto' mode.
+        min_arg_width: Minimum width for argument column when using 'auto' mode. Note that due to
+                       argparse limitations the help text won't begin earlier than column 26.
         max_arg_width: Maximum width for argument column when using 'auto' mode.
         padding: Additional padding to add to the calculated width in 'auto' mode.
 
@@ -28,7 +29,7 @@ class ArgParser(argparse.ArgumentParser):
     """
 
     DEFAULT_MAX_WIDTH: ClassVar[int] = 100
-    DEFAULT_MIN_ARG_WIDTH: ClassVar[int] = 20
+    DEFAULT_MIN_ARG_WIDTH: ClassVar[int] = 20  # argparse help text won't start lower than column 26
     DEFAULT_MAX_ARG_WIDTH: ClassVar[int] = 40
     DEFAULT_PADDING: ClassVar[int] = 4
 
