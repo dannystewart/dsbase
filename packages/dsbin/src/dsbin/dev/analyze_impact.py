@@ -150,19 +150,35 @@ class ImpactAnalyzer:
         self._imports_cache[package_name] = imports_by_file
         return imports_by_file
 
-    def find_changed_files(self, base_commit: str = "HEAD") -> list[str]:
+    def find_changed_files(
+        self, base_commit: str = "HEAD", include_staged: bool = True
+    ) -> list[str]:
         """Find files changed in the current working directory compared to base_commit."""
         try:
-            # Get the diff
+            changed_files = []
+
+            # Get unstaged changes
             result = subprocess.run(
                 ["git", "diff", "--name-only", base_commit],
                 capture_output=True,
                 text=True,
                 check=True,
             )
+            changed_files.extend(result.stdout.splitlines())
+
+            # Get staged changes if requested
+            if include_staged:
+                result = subprocess.run(
+                    ["git", "diff", "--cached", "--name-only"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                changed_files.extend(result.stdout.splitlines())
+
             return [
                 f
-                for f in result.stdout.splitlines()
+                for f in changed_files
                 if f.endswith(".py") and f.startswith(self.DSBASE_PATH.as_posix())
             ]
         except subprocess.CalledProcessError as e:
@@ -229,13 +245,18 @@ def parse_args() -> argparse.Namespace:
         "-v",
         "--verbose",
         action="store_true",
-        help="Show detailed output",
+        help="show detailed output",
     )
     parser.add_argument(
         "-d",
         "--discover",
         action="store_true",
-        help="Auto-discover packages instead of using predefined list",
+        help="auto-discover packages instead of using predefined list",
+    )
+    parser.add_argument(
+        "--staged-only",
+        action="store_true",
+        help="only check staged changes, not working directory changes",
     )
     return parser.parse_args()
 
