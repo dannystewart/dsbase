@@ -12,23 +12,27 @@ API code from their site. But hey, it works!
 
 from __future__ import annotations
 
-import argparse
 import json
 import operator
 from collections import Counter
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pycountry
 import requests
 
+from dsbase import ArgParser, Text
 from dsbase.shell import halo_progress
-from dsbase.text import Text
-from dsbase.util import handle_interrupt
+from dsbase.util import dsbase_setup, handle_interrupt
 
 from .ip_sources import CITY_NAMES, IP_SOURCES, REGION_NAMES, USA_NAMES
 
+if TYPE_CHECKING:
+    import argparse
+
 TIMEOUT = 2
 MAX_RETRIES = 3
+
+dsbase_setup()
 
 
 class IPLookup:
@@ -231,7 +235,7 @@ class IPLookup:
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="IP address lookup tool")
+    parser = ArgParser(description="IP address lookup tool")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("ip_address", type=str, nargs="?", help="the IP address to look up")
     group.add_argument("-m", "--me", action="store_true", help="get your external IP address")
