@@ -9,10 +9,9 @@ import tomlkit
 import yaml
 from tomlkit import TOMLDocument
 
-from dsbase import LocalLogger, PathKeeper
+from dsbase import LocalLogger, PathKeeper, Text
 from dsbase.configure.attr_dict import AttrDict
 from dsbase.configure.watchers import ConfigWatcher
-from dsbase.text import Text
 from dsbase.util.deprecate import not_yet_implemented
 
 if TYPE_CHECKING:

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from dsbase.text import Text
+from dsbase import Text
 from dsbase.time import TZ
 
 if TYPE_CHECKING:
