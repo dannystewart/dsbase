@@ -42,3 +42,7 @@ pip install evremixes  # My remix downloader
 pip install iplooker   # My IP lookup script
 pip install pybumper   # My Python version bumper
 ```
+
+## Personal Scripts
+
+If you want to peruse my expansive collection of personal scripts, please head over to the [**dsbin**](https://github.com/dannystewart/dsbase/blob/main/packages/dsbin/) library, and be sure to check out the [README](https://github.com/dannystewart/dsbase/blob/main/packages/dsbin/README.md).
