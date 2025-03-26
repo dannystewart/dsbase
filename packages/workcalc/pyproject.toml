@@ -1,6 +1,6 @@
 [project]
 name = "workcalc"
-version = "0.1.5"
+version = "0.1.6"
 description = "Calculate how much time went into a project"
 authors = [{ name = "Danny Stewart", email = "danny@stewart.cc" }]
 urls = { repository = "https://github.com/dannystewart/dsbin" }
