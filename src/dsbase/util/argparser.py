@@ -54,17 +54,13 @@ class ArgParser(argparse.ArgumentParser):
         # Use fixed width if provided, otherwise use min_arg_width as starting point
         help_position = self.arg_width if self.arg_width != "auto" else self.min_arg_width
 
-        # Define formatter_class to create our custom formatter
-        def create_formatter(prog: str) -> argparse.HelpFormatter:
-            formatter = CustomHelpFormatter(
+        super().__init__(
+            *args,
+            **kwargs,
+            formatter_class=lambda prog: CustomHelpFormatter(
                 prog, max_help_position=help_position, width=self.max_width
-            )
-            formatter.parser = self
-            return formatter
-
-        kwargs["formatter_class"] = create_formatter
-
-        super().__init__(*args, **kwargs)
+            ),
+        )
 
         # Add version argument if requested
         if self.add_version:
@@ -156,51 +152,30 @@ class ArgParser(argparse.ArgumentParser):
 
             max_length = max(max_length, length)
 
-        # Add padding first, then clamp to min/max range
-        optimal_width = max_length + self.padding
-        optimal_width = min(self.max_arg_width, max(self.min_arg_width, optimal_width))
+        # First, clamp the argument width to min/max range, then add padding
+        arg_width = min(self.max_arg_width, max(self.min_arg_width, max_length))
+        help_position = arg_width + self.padding
 
-        # Create a formatter factory that uses prog
+        # Create a new formatter with the calculated width and replace the existing one
         self._formatter_class = lambda prog: CustomHelpFormatter(
-            prog, max_help_position=optimal_width, width=self.max_width
+            prog, max_help_position=help_position, width=self.max_width
         )
 
-        # Make sure each formatter gets a reference to the parser
-        original_get_formatter = self._get_formatter
-
-        def get_formatter() -> argparse.HelpFormatter:
-            formatter = original_get_formatter()
-            if isinstance(formatter, CustomHelpFormatter):
-                custom_formatter = formatter
-                custom_formatter.parser = self
-            return formatter
-
-        self._get_formatter = get_formatter
+        # Update the existing formatter instance
+        self._get_formatter = lambda: self._formatter_class(self.prog)
 
 
 class CustomHelpFormatter(argparse.HelpFormatter):
-    """Format a help message for argparse.
-
-    This help formatter allows for customizing the column widths of arguments and help text in an
-    argument parser. You can use it by passing it as the formatter_class to ArgumentParser, but it's
-    designed for the custom ArgParser class and not intended to be used directly.
-    """
+    """Format a help message for argparse."""
 
     def __init__(self, prog: str, max_help_position: int = 24, width: int = 120):
         super().__init__(prog, max_help_position=max_help_position, width=width)
         self.custom_max_help_position = max_help_position
         self.custom_width = width
-        self._parser: ArgParser | None = None
 
-    @property
-    def parser(self) -> ArgParser | None:
-        """Get the associated ArgParser instance."""
-        return self._parser
-
-    @parser.setter
-    def parser(self, value: ArgParser) -> None:
-        """Set the associated ArgParser instance."""
-        self._parser = value
+        # Store a reference to the parser that created this formatter
+        # We'll use this to access DEFAULT_MIN_ARG_WIDTH
+        self.parser = None
 
     def _format_action(self, action: argparse.Action) -> str:
         # Calculate the action string (flags and metavar)
@@ -217,37 +192,34 @@ class CustomHelpFormatter(argparse.HelpFormatter):
             parts.append("\n")
             return "".join(parts)
 
-        # Get parser settings or use defaults
-        min_arg_width = 20  # Default value
-        max_arg_width = 40  # Default value
-        padding = 2  # Default padding
-
-        if self._parser:
-            if hasattr(self._parser, "min_arg_width"):
-                min_arg_width = self._parser.min_arg_width
-            if hasattr(self._parser, "max_arg_width"):
-                max_arg_width = self._parser.max_arg_width
-            if hasattr(self._parser, "padding"):
-                padding = self._parser.padding
+        # Get the parser's min_arg_width if available, otherwise use a default
+        min_arg_width = 18  # Default value
+        if hasattr(self, "parser") and self.parser and hasattr(self.parser, "min_arg_width"):
+            min_arg_width = self.parser.min_arg_width
 
         # Calculate help position based on argument length plus padding
         action_length = len(indent) + len(action_header)
+        padding = 2  # Consistent padding after each argument
 
-        # Calculate help position, respecting min_arg_width and max_arg_width
+        # Calculate help position, respecting min_arg_width
         help_position = max(min_arg_width, action_length + padding)
-        help_position = min(max_arg_width, help_position)
+
+        # But don't exceed max_help_position
+        help_position = min(self.custom_max_help_position, help_position)
 
         help_indent = " " * help_position
 
-        # If header and padding exceed calculated help position, move to next line
+        # If the action header plus padding exceeds our calculated help position,
+        # put help on next line
         if action_length + padding > help_position:
             parts.extend(("\n", help_indent))
-        else:  # Add padding spaces
-            padding_spaces = help_position - action_length
-            parts.append(" " * padding_spaces)
+        else:
+            # Add padding spaces
+            padding = help_position - action_length
+            parts.append(" " * padding)
 
         # Add the help text, properly wrapped
-        help_lines = self._split_lines(action.help, self.custom_width - help_position)
+        help_lines = self._split_lines(action.help, self._width - help_position)
         parts.append(help_lines[0])
 
         # If there are additional help lines, add them with proper indentation
