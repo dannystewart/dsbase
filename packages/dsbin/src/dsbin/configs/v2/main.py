@@ -31,7 +31,7 @@ class ConfigFile:
     """Represents a config file that can be updated from a remote source."""
 
     CONFIG_ROOT: ClassVar[str] = (
-        "https://raw.githubusercontent.com/dannystewart/configs/refs/heads/main"
+        "https://raw.githubusercontent.com/dannystewart/dsbase/refs/heads/main"
     )
 
     name: str
