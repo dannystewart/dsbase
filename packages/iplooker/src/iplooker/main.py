@@ -235,7 +235,7 @@ class IPLookup:
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
-    parser = ArgParser(description="IP address lookup tool")
+    parser = ArgParser(description=__doc__, lines=2)
     group = parser.add_mutually_exclusive_group()
     group.add_argument("ip_address", type=str, nargs="?", help="the IP address to look up")
     group.add_argument("-m", "--me", action="store_true", help="get your external IP address")
