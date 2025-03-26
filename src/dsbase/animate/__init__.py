@@ -1,8 +1,3 @@
 from __future__ import annotations
 
-from .walking_man import (
-    conditional_walking_man,
-    start_walking,
-    stop_walking,
-    walking_man,
-)
+from .walking_man import WalkingMan, conditional_walking_man, walking_man

@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, ClassVar
 import inquirer
 
 from dsbase import ArgParser, LocalLogger, MediaManager
-from dsbase.animate import start_walking, stop_walking
+from dsbase.animate import walking_man
 from dsbase.shell import halo_progress
 from dsbase.text import color as colored
 from dsbase.util import dsbase_setup, handle_interrupt
@@ -267,10 +267,6 @@ def parse_arguments() -> argparse.Namespace:
 @handle_interrupt()
 def main() -> None:
     """Convert to desired formats."""
-    # Start the loading animation
-    animation_thread = start_walking()
-
-    # Parse command-line arguments
     args = parse_arguments()
     input_file = Path(args.input_file)
 
@@ -278,11 +274,8 @@ def main() -> None:
         print(colored(f"The file {input_file} does not exist. Aborting.", "red"))
         sys.exit(1)
 
-    # Determine the bit depth so we know what options to show
-    bit_depth = MediaManager().find_bit_depth(input_file)
-
-    # Stop the animation once we have the bit depth
-    stop_walking(animation_thread)
+    with walking_man():  # Determine the bit depth so we know what options to show
+        bit_depth = MediaManager().find_bit_depth(input_file)
 
     mshare = MusicShare(input_file, bit_depth, args.upload)
     mshare.perform_conversions()
