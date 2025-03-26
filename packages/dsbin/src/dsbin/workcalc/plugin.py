@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from workcalc.data import WorkItem
+    from dsbin.workcalc.data import WorkItem
 
 
 class DataSourcePlugin(ABC):

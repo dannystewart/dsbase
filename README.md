@@ -41,5 +41,4 @@ pip install dsupdater  # My OS and software updater
 pip install evremixes  # My remix downloader
 pip install iplooker   # My IP lookup script
 pip install pybumper   # My Python version bumper
-pip install workcalc   # My work time spent calculator
 ```

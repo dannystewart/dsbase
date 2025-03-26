@@ -11,7 +11,7 @@ from dsbase.time import TZ
 if TYPE_CHECKING:
     from datetime import date
 
-    from workcalc.data import WorkStats
+    from dsbin.workcalc.data import WorkStats
 
 
 class DayOfWeek(Enum):

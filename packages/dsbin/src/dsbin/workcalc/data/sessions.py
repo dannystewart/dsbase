@@ -9,7 +9,7 @@ from dsbase import Text
 if TYPE_CHECKING:
     from datetime import date, datetime
 
-    from workcalc.data import WorkStats
+    from dsbin.workcalc.data import WorkStats
 
 
 @dataclass

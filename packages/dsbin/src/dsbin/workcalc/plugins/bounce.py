@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, ClassVar
 from dsbase import FileManager, LocalLogger
 from dsbase.mac import get_timestamps
 
-from workcalc.data import WorkItem
-from workcalc.plugin import DataSourcePlugin
+from dsbin.workcalc.data import WorkItem
+from dsbin.workcalc.plugin import DataSourcePlugin
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

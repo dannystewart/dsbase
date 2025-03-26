@@ -10,7 +10,7 @@ from dsbase import LocalLogger, Text, TimeAwareLogger
 from dsbase.animate import walking_man
 from dsbase.util import dsbase_setup
 
-from workcalc.data import (
+from dsbin.workcalc.data import (
     SessionAnalyzer,
     StreakAnalyzer,
     SummaryAnalyzer,
@@ -18,13 +18,13 @@ from workcalc.data import (
     TimeSpan,
     WorkStats,
 )
-from workcalc.plugins import BounceDataSource, GitDataSource
+from dsbin.workcalc.plugins import BounceDataSource, GitDataSource
 
 if TYPE_CHECKING:
     from datetime import date
 
-    from workcalc import DataSourcePlugin
-    from workcalc.data import WorkItem
+    from dsbin.workcalc import DataSourcePlugin
+    from dsbin.workcalc.data import WorkItem
 
 dsbase_setup()
 

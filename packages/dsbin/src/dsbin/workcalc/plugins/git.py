@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 
 from dsbase import LocalLogger
 
-from workcalc import DataSourcePlugin
-from workcalc.data import WorkItem
+from dsbin.workcalc import DataSourcePlugin
+from dsbin.workcalc.data import WorkItem
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

@@ -47,6 +47,7 @@ build-backend = "hatchling.build"
 # Scripts to list all my scripts and check versions
 lsbin = "dsbin.lsbin:main"
 dsver = "dsbin.dsver:main"
+workcalc = "dsbin.workcalc.main:main"
 
 # File management scripts
 backupsort = "dsbin.files.backupsort:main"
