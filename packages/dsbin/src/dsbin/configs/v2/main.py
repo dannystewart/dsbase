@@ -1,4 +1,6 @@
-"""This script will download config files for various coding tools which are then used as reference
+"""Download config files for various coding tools.
+
+This script will download configs for various coding tools I use, which are then used as reference
 to compare against files with the same name in the directory where the script is run. This is to
 ensure that I always have the latest versions of my preferred configurations for all my projects.
 
