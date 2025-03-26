@@ -1,0 +1,38 @@
+{
+  "lsp": {
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace",
+          "typeCheckingMode": "strict",
+          "reportArgumentType": "information",
+          "reportCallIssue": "warning",
+          "reportMissingImports": "none",
+          "reportMissingParameterType": "warning",
+          "reportMissingTypeArgument": "information",
+          "reportMissingTypeStubs": "none",
+          "reportOptionalMemberAccess": "none",
+          "reportPossiblyUnboundVariable": "none",
+          "reportUnknownArgumentType": "none",
+          "reportUnknownLambdaType": "none",
+          "reportUnknownMemberType": "none",
+          "reportUnknownParameterType": "none",
+          "reportUnknownVariableType": "none",
+          "reportUnnecessaryComparison": "warning",
+          "reportUnnecessaryIsInstance": "warning",
+          "reportUntypedClassDecorator": "none",
+          "reportUntypedFunctionDecorator": "none",
+          "reportUnusedFunction": "warning",
+          "reportUnusedImport": "none",
+          "reportUnusedVariable": "warning",
+          "useLibraryCodeForTypes": true,
+          "deprecateTypingAliases": true,
+          "enableReachabilityAnalysis": true
+        },
+        "python": {
+          "pythonPath": ".venv/bin/python"
+        }
+      }
+    }
+  }
+}
