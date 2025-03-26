@@ -18,13 +18,11 @@ from typing import TYPE_CHECKING, ClassVar
 
 import inquirer
 
-from dsbase import LocalLogger
+from dsbase import ArgParser, LocalLogger, MediaManager
 from dsbase.animate import start_walking, stop_walking
-from dsbase.media import find_bit_depth
 from dsbase.shell import halo_progress
 from dsbase.text import color as colored
 from dsbase.util import dsbase_setup, handle_interrupt
-from dsbase.util.argparser import ArgParser
 
 if TYPE_CHECKING:
     import argparse
@@ -281,7 +279,7 @@ def main() -> None:
         sys.exit(1)
 
     # Determine the bit depth so we know what options to show
-    bit_depth = find_bit_depth(str(input_file))
+    bit_depth = MediaManager().find_bit_depth(input_file)
 
     # Stop the animation once we have the bit depth
     stop_walking(animation_thread)
