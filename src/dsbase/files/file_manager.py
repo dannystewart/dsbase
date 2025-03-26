@@ -14,6 +14,7 @@ from dsbase.shell import confirm_action
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from logging import Logger
     from pathlib import Path
 
 
@@ -25,8 +26,13 @@ class FileManager:
     detecting duplicate files using SHA-256 hashing.
     """
 
-    def __init__(self, log_level: str = "info", detailed_log: bool = False):
-        self.logger = LocalLogger().get_logger(level=log_level, simple=not detailed_log)
+    def __init__(
+        self,
+        log_level: str = "info",
+        detailed_log: bool = False,
+        logger: Logger | None = None,
+    ):
+        self.logger = logger or LocalLogger().get_logger(level=log_level, simple=not detailed_log)
 
     def list(
         self,

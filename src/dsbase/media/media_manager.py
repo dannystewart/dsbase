@@ -3,18 +3,27 @@ from __future__ import annotations
 import subprocess
 from collections import defaultdict
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from dsbase import LocalLogger
 from dsbase.animate import conditional_walking_man
 from dsbase.media.video_helper import VideoHelper
 from dsbase.shell.progress import halo_progress
 
+if TYPE_CHECKING:
+    from logging import Logger
+
 
 class MediaManager:
     """A utility class with a comprehensive set of methods for common media operations."""
 
-    def __init__(self, log_level: str = "info", detailed_log: bool = False):
-        self.logger = LocalLogger().get_logger(level=log_level, simple=not detailed_log)
+    def __init__(
+        self,
+        log_level: str = "info",
+        detailed_log: bool = False,
+        logger: Logger | None = None,
+    ):
+        self.logger = logger or LocalLogger().get_logger(level=log_level, simple=not detailed_log)
         self.video = VideoHelper(self)
 
     def run_ffmpeg(
