@@ -24,9 +24,6 @@ from dsbase.text.diff import show_diff
 if TYPE_CHECKING:
     import argparse
 
-logger = LocalLogger().get_logger()
-files = FileManager()
-
 
 @dataclass
 class ConfigFile:
@@ -44,83 +41,90 @@ class ConfigFile:
         self.local_path = Path.cwd() / self.name
 
 
-# Define the configs to manage
-CONFIGS = [
-    ConfigFile("ruff.toml"),
-    ConfigFile("mypy.ini"),
-]
+class ConfigManager:
+    """Manages downloading and updating config files from a remote repository."""
 
+    # Define the configs to manage
+    CONFIGS: ClassVar[list[ConfigFile]] = [
+        ConfigFile("ruff.toml"),
+        ConfigFile("mypy.ini"),
+    ]
 
-def update_configs(skip_confirm: bool = False) -> None:
-    """Pull down latest configs from repository, updating local copies."""
-    changes_made = set()
-    should_create_all = not any(config.local_path.exists() for config in CONFIGS)
+    def __init__(self, skip_confirm: bool = False):
+        self.logger = LocalLogger().get_logger()
+        self.files = FileManager()
+        self.skip_confirm = skip_confirm
+        self.changes_made = set()
 
-    if should_create_all:
-        logger.debug("No existing configs found; downloading and creating all available configs.")
+        if self._should_create_all:
+            self.logger.debug(
+                "No existing configs found; downloading and creating all available configs."
+            )
 
-    for config in CONFIGS:
-        # Get content from remote
-        remote_content = fetch_remote_content(config)
-        if not remote_content:
-            logger.error("Failed to update %s config - not available remotely.", config.name)
-            continue
+    def update_configs(self) -> None:
+        """Pull down latest configs from repository, updating local copies."""
+        for config in self.CONFIGS:
+            remote_content = self.fetch_remote_content(config)
+            if not remote_content:
+                self.logger.error(
+                    "Failed to update %s config - not available remotely.", config.name
+                )
+                continue
 
-        # Process the config
-        if process_config(config, remote_content, skip_confirm, should_create_all):
-            changes_made.add(config.name)
+            if self.process_config(config, remote_content):
+                self.changes_made.add(config.name)
 
-    # Report unchanged configs
-    unchanged = [c.name for c in CONFIGS if c.name not in changes_made]
-    if unchanged:
-        logger.info("No changes needed for: %s", ", ".join(unchanged))
+        # Report unchanged configs
+        if unchanged := [c.name for c in self.CONFIGS if c.name not in self.changes_made]:
+            self.logger.info("No changes needed for: %s", ", ".join(unchanged))
 
+    def fetch_remote_content(self, config: ConfigFile) -> str | None:
+        """Fetch content from remote URL."""
+        try:
+            response = requests.get(config.url)
+            response.raise_for_status()
+            return response.text
+        except requests.RequestException:
+            self.logger.warning("Failed to download %s from remote.", config.name)
+            return None
 
-def fetch_remote_content(config: ConfigFile) -> str | None:
-    """Fetch content from remote URL."""
-    try:
-        response = requests.get(config.url)
-        response.raise_for_status()
-        return response.text
-    except requests.RequestException:
-        logger.warning("Failed to download %s from remote.", config.name)
-        return None
+    def process_config(self, config: ConfigFile, remote_content: str) -> bool:
+        """Process a single config file, updating or creating as needed.
 
+        Returns:
+            True if the config was updated or created, False otherwise.
+        """
+        if config.local_path.exists():
+            local_content = config.local_path.read_text()
+            if local_content == remote_content:
+                return False
 
-def process_config(
-    config: ConfigFile,
-    remote_content: str,
-    skip_confirm: bool,
-    should_create_all: bool,
-) -> bool:
-    """Process a single config file, updating or creating as needed.
-
-    Returns:
-        True if the config was updated or created, False otherwise.
-    """
-    if config.local_path.exists():
-        local_content = config.local_path.read_text()
-        if local_content == remote_content:
+            if not self.skip_confirm:
+                show_diff(local_content, remote_content, config.local_path.name)
+                if not confirm_action(f"Update {config.name} config?", default_to_yes=True):
+                    return False
+        elif not (
+            self.skip_confirm
+            or self._should_create_all
+            or confirm_action(
+                f"{config.name} config does not exist locally. Create?",
+                default_to_yes=True,
+            )
+        ):
             return False
 
-        if not skip_confirm:
-            show_diff(local_content, remote_content, config.local_path.name)
-            if not confirm_action(f"Update {config.name} config?", default_to_yes=True):
-                return False
-    elif not (
-        skip_confirm
-        or should_create_all
-        or confirm_action(
-            f"{config.name} config does not exist locally. Create?",
-            default_to_yes=True,
+        # Write the file and log it
+        config.local_path.write_text(remote_content)
+        self.logger.info(
+            "%s %s config from remote.",
+            "Created" if not config.local_path.exists() else "Updated",
+            config.name,
         )
-    ):
-        return False
+        return True
 
-    config.local_path.write_text(remote_content)
-    action = "Created" if not config.local_path.exists() else "Updated"
-    logger.info("%s %s config from remote.", action, config.name)
-    return True
+    @property
+    def _should_create_all(self) -> bool:
+        return not any(config.local_path.exists() for config in self.CONFIGS)
 
 
 def parse_args() -> argparse.Namespace:
@@ -133,7 +137,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """Fetch and update the config files."""
     args = parse_args()
-    update_configs(skip_confirm=args.y)
+    manager = ConfigManager(skip_confirm=args.y)
+    manager.update_configs()
 
 
 if __name__ == "__main__":
