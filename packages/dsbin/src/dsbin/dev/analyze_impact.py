@@ -105,9 +105,6 @@ class ImpactAnalyzer:
                     color_print(f"\n{package} (last release: {info['latest_tag']}):", "cyan")
                     for file in info["changes"]:
                         print(f"  - {file}")
-                else:
-                    color_print(f"\n{package} (last release: {info['latest_tag']}):", "green")
-                    print("  No changes since last release")
             else:
                 color_print(f"\n{package}:", "red")
                 print("  No release tags found")
