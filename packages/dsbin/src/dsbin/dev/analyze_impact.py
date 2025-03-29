@@ -18,25 +18,20 @@ class ImpactAnalyzer:
 
     DSBASE_PATH: ClassVar[Path] = Path("src/dsbase")
     PACKAGES_PATH: ClassVar[Path] = Path("packages")
-    PACKAGES: ClassVar[list[str]] = [
-        "dsbin",
-        "dsupdater",
-        "evremixes",
-        "iplooker",
-        "pybumper",
-    ]
 
     def __init__(
         self,
+        packages: list[str],
         base_commit: str = "HEAD",
         verbose: bool = False,
-        packages: list[str] | None = None,
     ) -> None:
         env = EnvManager(add_debug=True)
         self.logger: Logger = LocalLogger().get_logger(simple=True, env=env)
+        self.packages = packages
         self.base_commit = base_commit
         self.verbose = verbose
-        self.packages = packages or self.PACKAGES
+
+        # Initialize empty lists for changes
         self.changed_files: list[str] = []
         self.changed_modules: set[str] = set()
         self.impacted_packages: dict[str, set[str]] = {}
@@ -259,13 +254,7 @@ def parse_args() -> argparse.Namespace:
         help="show detailed output",
     )
     parser.add_argument(
-        "-d",
-        "--discover",
-        action="store_true",
-        help="auto-discover packages instead of using predefined list",
-    )
-    parser.add_argument(
-        "--staged-only",
+        "--staged",
         action="store_true",
         help="only check staged changes, not working directory changes",
     )
@@ -276,11 +265,8 @@ def main() -> None:
     """Main function to analyze impact of changes in dsbase."""
     args = parse_args()
 
-    # Optionally discover packages
-    packages = None
-    if args.discover:
-        packages = ImpactAnalyzer.discover_packages()
-        color_print(f"Discovered packages: {', '.join(packages)}", "blue")
+    packages = ImpactAnalyzer.discover_packages()
+    color_print(f"Discovered packages: {', '.join(packages)}", "cyan")
 
     analyzer = ImpactAnalyzer(base_commit=args.base, verbose=args.verbose, packages=packages)
     analyzer.analyze()
