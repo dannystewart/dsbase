@@ -30,7 +30,7 @@ dependencies = [
     "tqdm (>=4.67.1,<5.0.0)",
     "types-paramiko (>=3.5.0.20240928,<4.0.0.0)",
     "types-pillow (>=10.2.0.20240822,<11.0.0.0)",
-    "types-requests (>=2.32.0.20250306,<3.0.0.0)",
+    "types-requests (>=2.32.0.20250328,<3.0.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
