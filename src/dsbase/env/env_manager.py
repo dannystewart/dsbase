@@ -27,23 +27,32 @@ class EnvManager(metaclass=Singleton):
     masking. Variables can be accessed as attributes. Defaults to loading environment variables from
     `.env` and `~/.env`, but also uses the current environment and allows specifying custom files.
 
-    For detailed logging, set the ENV_DEBUG environment variable to "1".
+    For detailed logging for EnvManager itself, set the ENV_DEBUG environment variable to '1'.
+
+    Args:
+        env_file: A list of environment files to load. Defaults to [".env", "~/.env"].
+        add_debug: Whether to add a DEBUG variable automatically. Defaults to False.
     """
 
     DEFAULT_ENV_FILES: ClassVar[list[Path]] = [Path(".env"), Path("~/.env").expanduser()]
 
     env_file: list[Path] | Path | str | None = field(default_factory=list)
+    add_debug: bool = False
+
+    logger: Logger = field(init=False)
+
     vars: dict[str, EnvVar] = field(default_factory=dict)
     values: dict[str, Any] = field(default_factory=dict)
     attr_names: dict[str, str] = field(default_factory=dict)
-
-    logger: Logger = field(init=False)
 
     def __post_init__(self):
         """Initialize with default environment variables."""
         env_debug = self.validate_bool(os.environ.get("ENV_DEBUG", "0"))
         self.logger = LocalLogger().get_logger(level="DEBUG" if env_debug else "INFO")
         self._load_env_files()
+
+        if self.add_debug and "DEBUG" not in self.vars:
+            self.add_debug_var()
 
     def _load_env_files(self) -> None:
         """Load environment variables from specified files."""
