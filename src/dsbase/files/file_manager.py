@@ -62,7 +62,7 @@ class FileManager:
             A list of file paths as Path objects.
 
         Example usage with custom sort (alphabetical sorting by file name):
-            `file_list = list_files(dir, sort_key=lambda x: x.stat().st_mtime)`
+            `file_list = files.list(dir, sort_key=lambda x: x.stat().st_mtime)`
         """
         if exts:
             # Handle both single string and list inputs
