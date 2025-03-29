@@ -3,8 +3,10 @@ from __future__ import annotations
 import contextlib
 import os
 import platform
+import shutil
 import string
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -51,32 +53,81 @@ class TrackDownloader:
 
         # Get base output folder
         base_folder = config.location / album_name
+        overall_success = True
 
         match config.versions:
             case TrackVersions.ORIGINAL:
-                self._download_track_set(
+                overall_success &= self._download_and_move_set(
                     album_info, base_folder, config.audio_format, is_instrumental=False
                 )
             case TrackVersions.INSTRUMENTAL:
-                self._download_track_set(
+                overall_success &= self._download_and_move_set(
                     album_info, base_folder, config.audio_format, is_instrumental=True
                 )
             case TrackVersions.BOTH:
-                self._download_track_set(
+                overall_success &= self._download_and_move_set(
                     album_info, base_folder, config.audio_format, is_instrumental=False
                 )
                 print()
-                self._download_track_set(
+                overall_success &= self._download_and_move_set(
                     album_info,
                     base_folder / "Instrumentals",
                     config.audio_format,
                     is_instrumental=True,
                 )
 
-        if not config.is_admin:
+        if overall_success and not config.is_admin:
             print_colored("\nEnjoy!", "green")
+            self.open_folder_in_os(base_folder)
+        elif not overall_success:
+            print_colored("\nSome downloads were not completed successfully.", "yellow")
 
-        self.open_folder_in_os(base_folder)
+    def _download_and_move_set(
+        self,
+        album_info: AlbumInfo,
+        final_folder: Path,
+        file_format: AudioFormat,
+        is_instrumental: bool,
+    ) -> bool:
+        """Download a track set to temp location and move to final location if successful."""
+        display_folder = self.format_path_for_display(final_folder)
+        print_colored(f"Downloading in {file_format.display_name} to {display_folder}...\n", "cyan")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_folder = Path(temp_dir) / final_folder.name
+
+            # Download to temp location
+            success = self._download_track_set(
+                album_info, temp_folder, file_format, is_instrumental, display_folder
+            )
+
+            if success:
+                self.remove_previous_downloads(final_folder)
+                self._move_files_to_destination(temp_folder, final_folder)
+                return True
+            print_colored(
+                "\nDownload incomplete. No changes were made to your existing files.", "yellow"
+            )
+            return False
+
+    def _move_files_to_destination(self, source_dir: Path, dest_dir: Path) -> None:
+        """Move files from temporary location to final destination."""
+        if not source_dir.exists():
+            return
+
+        # Create destination directory if it doesn't exist
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy all files and directories
+        for item in source_dir.glob("*"):
+            dest_path = dest_dir / item.name
+
+            if item.is_dir():
+                # Recursively copy directories
+                shutil.copytree(item, dest_path, dirs_exist_ok=True)
+            else:
+                # Copy files
+                shutil.copy2(item, dest_path)
 
     @handle_interrupt()
     def _download_track_set(
@@ -85,13 +136,10 @@ class TrackDownloader:
         output_folder: Path,
         file_format: AudioFormat,
         is_instrumental: bool,
-    ) -> None:
-        """Download a single complete set of tracks."""
+        display_folder: str,
+    ) -> bool:
+        """Download a single complete set of tracks. Returns True if all downloads succeeded."""
         output_folder.mkdir(parents=True, exist_ok=True)
-        self.remove_previous_downloads(output_folder)
-
-        display_folder = self.format_path_for_display(output_folder)
-        print_colored(f"Downloading in {file_format.display_name} to {display_folder}...\n", "cyan")
 
         # Choose cover art based on track type
         cover_url = album_info.inst_art_url if is_instrumental else album_info.cover_art_url
@@ -99,6 +147,7 @@ class TrackDownloader:
 
         spinner = Halo(spinner="dots")
         total_tracks = len(album_info.tracks)
+        all_successful = True
 
         for index, track in enumerate(album_info.tracks, start=1):
             track_number = f"{track.track_number:02d}"
@@ -128,12 +177,14 @@ class TrackDownloader:
 
                 if not success:
                     spinner.fail(colored(f"Failed to add metadata to {track_name}.", "red"))
+                    all_successful = False
                     continue
 
                 spinner.succeed(colored(f"Downloaded {track_name}", "green"))
 
             except requests.RequestException:
                 spinner.fail(colored(f"Failed to download {track_name}.", "red"))
+                all_successful = False
 
         spinner.stop()
 
@@ -143,27 +194,42 @@ class TrackDownloader:
         )
         print_colored(f"\n{end_message}", "green")
 
+        return all_successful
+
     @handle_interrupt()
     def download_tracks_for_admin(self, album_info: AlbumInfo) -> None:
         """Download all track versions to the custom OneDrive location."""
         base_path = self.config.onedrive_folder
+        overall_success = True
 
         # Download all combinations
         for file_format in AudioFormat:
             # Original tracks
-            output_folder = base_path / Path(file_format.display_name)
-            self._download_track_set(album_info, output_folder, file_format, is_instrumental=False)
-            print()
-            # Instrumental tracks
-            output_folder = base_path / Path(f"Instrumentals {file_format.display_name}")
-            self._download_track_set(album_info, output_folder, file_format, is_instrumental=True)
+            final_folder = base_path / file_format.display_name
+            overall_success &= self._download_and_move_set(
+                album_info, final_folder, file_format, is_instrumental=False
+            )
             print()
 
-        self.open_folder_in_os(base_path)
+            # Instrumental tracks
+            final_folder = base_path / f"Instrumentals {file_format.display_name}"
+            overall_success &= self._download_and_move_set(
+                album_info, final_folder, file_format, is_instrumental=True
+            )
+            print()
+
+        if overall_success:
+            print_colored("All downloads completed successfully!", "green")
+            self.open_folder_in_os(base_path)
+        else:
+            print_colored("Some downloads were not completed successfully.", "yellow")
 
     def remove_previous_downloads(self, output_folder: str | Path) -> None:
         """Remove any existing files with the specified file extension in the output folder."""
         output_folder = Path(output_folder)
+        if not output_folder.exists():
+            return
+
         file_extensions = (".flac", ".m4a")
 
         # Remove matching files
