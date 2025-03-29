@@ -1,7 +1,17 @@
+"""The official versions of my remixes are the ones published on my website at
+https://music.dannystewart.com/evanescence. This script grabs them from there, using the
+evtracks.json file holding the current list of available remixes, metadata, and URLs.
+
+You're presented with the choice of FLAC or ALAC (Apple Lossless), as well as where you want the
+files to be saved. The default options are your Downloads and Music folders, but you can also enter
+a custom path. After downloading, it will apply the correct metadata, album art, and filenames.
+"""
+
 from __future__ import annotations
 
 from dsbase.env import EnvManager
 from dsbase.util import dsbase_setup
+from dsbase.util.argparser import ArgParser
 
 from evremixes.config import DownloadConfig
 from evremixes.metadata_helper import MetadataHelper
@@ -35,5 +45,10 @@ class EvRemixes:
 
 def main() -> None:
     """Run the Evanescence Remix Downloader."""
+    # Set up argument parser for `--version`
+    parser = ArgParser(description=__doc__)
+    parser.parse_args()
+
+    # Initialize the downloader
     evremixes = EvRemixes()
     evremixes.download_tracks()
