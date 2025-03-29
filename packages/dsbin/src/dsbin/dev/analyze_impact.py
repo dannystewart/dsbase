@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from dsbase import ArgParser, LocalLogger
+from dsbase import ArgParser, EnvManager, LocalLogger
 from dsbase.text import color_print
 
 if TYPE_CHECKING:
@@ -32,7 +32,8 @@ class ImpactAnalyzer:
         verbose: bool = False,
         packages: list[str] | None = None,
     ) -> None:
-        self.logger: Logger = LocalLogger().get_logger(simple=True)
+        env = EnvManager(add_debug=True)
+        self.logger: Logger = LocalLogger().get_logger(simple=True, env=env)
         self.base_commit = base_commit
         self.verbose = verbose
         self.packages = packages or self.PACKAGES
@@ -54,8 +55,6 @@ class ImpactAnalyzer:
         if not self.changed_files:
             self.logger.info("No Python files changed in dsbase. You're good to go!")
             return {}
-
-        color_print("\n=== Changes Detected ===\n", "yellow")
 
         color_print("Changed files in dsbase:", "blue")
         for file in self.changed_files:
@@ -158,29 +157,41 @@ class ImpactAnalyzer:
             changed_files = []
 
             # Get unstaged changes
+            cmd = ["git", "diff", "--name-only", base_commit]
+            self.logger.debug("Running: %s", " ".join(cmd))
             result = subprocess.run(
-                ["git", "diff", "--name-only", base_commit],
+                cmd,
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            changed_files.extend(result.stdout.splitlines())
+            unstaged = result.stdout.splitlines()
+            self.logger.debug("Found %d unstaged changes: %s", len(unstaged), unstaged)
+            changed_files.extend(unstaged)
 
             # Get staged changes if requested
             if include_staged:
+                cmd = ["git", "diff", "--cached", "--name-only"]
+                self.logger.debug("Running: %s", " ".join(cmd))
                 result = subprocess.run(
-                    ["git", "diff", "--cached", "--name-only"],
+                    cmd,
                     capture_output=True,
                     text=True,
                     check=True,
                 )
-                changed_files.extend(result.stdout.splitlines())
+                staged = result.stdout.splitlines()
+                self.logger.debug("Found %d staged changes: %s", len(staged), staged)
+                changed_files.extend(staged)
 
-            return [
+            filtered = [
                 f
                 for f in changed_files
                 if f.endswith(".py") and f.startswith(self.DSBASE_PATH.as_posix())
             ]
+            self.logger.debug(
+                "After filtering for Python files in %s: %s", self.DSBASE_PATH.as_posix(), filtered
+            )
+            return filtered
         except subprocess.CalledProcessError as e:
             self.logger.error("Error running git diff: %s", str(e))
             return []
