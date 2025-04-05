@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 from dotenv import load_dotenv
 
 from polykit.core import Singleton
-from polykit.env import PolyVar
+from polykit.env.types import PolyVar
 from polykit.log import PolyLog
 
 if TYPE_CHECKING:

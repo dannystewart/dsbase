@@ -146,4 +146,3 @@ os.environ["ENV_DEBUG"] = "1"
 from __future__ import annotations
 
 from .polyenv import PolyEnv
-from .types import PolyVar
