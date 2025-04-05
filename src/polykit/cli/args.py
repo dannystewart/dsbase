@@ -22,9 +22,6 @@ class ArgParser(argparse.ArgumentParser):
         add_version: If True, automatically adds a version argument using polykit.
         version_flags: List of flags to use for the version argument. Defaults to ['--version'].
 
-    NOTE: Version handling requires the polykit package. If it's not available, the version
-          argument won't be added. If desired, you can install it using 'pip install polykit'.
-
     Example:
         # to automatically determine the optimal argument width
         parser = ArgParser(description=__doc__)
