@@ -5,7 +5,7 @@ import re
 import textwrap
 from typing import Any, ClassVar
 
-from polykit.versions import VersionChecker
+from polykit.platform import VersionChecker
 
 
 class ArgParser(argparse.ArgumentParser):

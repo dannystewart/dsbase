@@ -1,6 +1,6 @@
-"""**The logical choice for Python logging.** 🖖
+"""# PolyLog
 
-Logician is a powerful, colorful, and intuitive logging library for Python that makes beautiful logs easy.
+PolyLog is a powerful, colorful, and intuitive logging library for Python that makes beautiful logs easy.
 
 ## Features
 
@@ -14,13 +14,13 @@ Logician is a powerful, colorful, and intuitive logging library for Python that 
 ## Installation
 
 ```bash
-pip install logician
+pip install polylog
 ```
 
 ## Quick Start
 
 ```python
-from logician import Logger
+from polylog import Logger
 
 # Create a basic logger
 logger = Logger("MyApp")
@@ -72,7 +72,7 @@ The TimeAwareLogger automatically formats datetime objects in log messages:
 
 ```python
 from datetime import datetime, timedelta
-from logician import Logger
+from polylog import Logger
 
 logger = Logger("TimeDemo", time_aware=True)
 
@@ -88,5 +88,5 @@ logger.info("Meeting scheduled for: %s", next_week)  # "Meeting scheduled for: M
 
 from __future__ import annotations
 
-from .logician import Logician
+from .polylog import PolyLog
 from .time_aware import TimeAwareLogger

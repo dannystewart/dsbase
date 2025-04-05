@@ -64,9 +64,9 @@ def handle_interrupt(
                 if logger:  # Use supplied logger
                     logger.error(message)
                 else:  # Create new logger
-                    from polykit.log.logician import Logician
+                    from polykit.log import PolyLog
 
-                    Logician.get_logger(simple=True).error(message)
+                    PolyLog.get_logger(simple=True).error(message)
                 sys.exit(exit_code)
 
         return wrapper
@@ -106,9 +106,9 @@ def async_interrupt_handler[T](
             if logger:  # Use supplied logger
                 logger.error(message)
             else:  # Create new logger
-                from polykit.log.logician import Logician
+                from polykit.log import PolyLog
 
-                Logician.get_logger(simple=True).error(message)
+                PolyLog.get_logger(simple=True).error(message)
             sys.exit(exit_code)
 
     return wrapper

@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 from dotenv import load_dotenv
 
 from polykit.core import Singleton
-from polykit.env.variable import EnvironmentVariable
-from polykit.log import Logician
+from polykit.env import PolyVar
+from polykit.log import PolyLog
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,8 +19,8 @@ T = TypeVar("T")
 
 
 @dataclass
-class Enviromancer(metaclass=Singleton):
-    """Enviromancer is an environment variable manager for Python applications.
+class PolyEnv(metaclass=Singleton):
+    """PolyEnv is an environment variable manager for Python applications.
 
     It handles loading from multiple `.env` files, type conversion, validation, and provides an
     elegant interface for accessing your environment configuration. It features:
@@ -44,7 +44,7 @@ class Enviromancer(metaclass=Singleton):
     override broader ones. For example, if you have /home/user/.env and /home/user/project/.env,
     variables in the project-specific file will take precedence.
 
-    For detailed logging for Enviromancer itself, set the ENV_DEBUG environment variable to '1'.
+    For detailed logging for PolyEnv itself, set the ENV_DEBUG environment variable to '1'.
 
     Args:
         env_file: Custom environment files to load instead of the default hierarchy.
@@ -60,7 +60,7 @@ class Enviromancer(metaclass=Singleton):
 
     logger: Logger = field(init=False)
 
-    vars: dict[str, EnvironmentVariable] = field(default_factory=dict)
+    vars: dict[str, PolyVar] = field(default_factory=dict)
     values: dict[str, Any] = field(default_factory=dict)
     attr_names: dict[str, str] = field(default_factory=dict)
 
@@ -79,7 +79,7 @@ class Enviromancer(metaclass=Singleton):
         env_debug = self.validate_bool(os.environ.get("ENV_DEBUG", "0"))
 
         # Set up the logger
-        self.logger = Logician.get_logger(level="DEBUG" if env_debug else "INFO")
+        self.logger = PolyLog.get_logger(level="DEBUG" if env_debug else "INFO")
 
         # Load environment variables from files
         self._load_env_files()
@@ -161,7 +161,7 @@ class Enviromancer(metaclass=Singleton):
         """Reload environment variables from files and clear cached values."""
         self._load_env_files()
         self.values.clear()
-        self.logger.info("Enviromancer environment flushed and reloaded.")
+        self.logger.info("PolyEnv environment flushed and reloaded.")
 
     def validate_all(self) -> None:
         """Validate all registered environment variables at once.
@@ -219,7 +219,7 @@ class Enviromancer(metaclass=Singleton):
         attr = attr_name or name.lower()
         self.attr_names[attr] = name
 
-        self.vars[name] = EnvironmentVariable(
+        self.vars[name] = PolyVar(
             name=name.upper(),
             required=required,
             default=default,
@@ -228,7 +228,7 @@ class Enviromancer(metaclass=Singleton):
             secret=secret,
         )
 
-    def add_vars(self, *vars: EnvironmentVariable) -> None:  # noqa: A002
+    def add_vars(self, *vars: PolyVar) -> None:  # noqa: A002
         """Add multiple environment variables at once.
 
         Args:

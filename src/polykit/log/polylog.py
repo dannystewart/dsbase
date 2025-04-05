@@ -1,6 +1,6 @@
 """Classes for setting up and formatting loggers.
 
-Logician and related classes provide methods for setting up a logger with a console handler,
+PolyLog and related classes provide methods for setting up a logger with a console handler,
 defining console color codes for use in the formatter to colorize messages by log level, and more.
 """
 
@@ -15,25 +15,25 @@ from polykit.log.formatters import CustomFormatter, FileFormatter
 from polykit.log.types import LogLevel
 
 
-class Logician(metaclass=Singleton):
+class PolyLog(metaclass=Singleton):
     """A powerful, colorful logger for Python applications. The logical choice for Python logging.
 
-    Logician provides easy configuration of Python's standard logging with sensible defaults and
+    PolyLog provides easy configuration of Python's standard logging with sensible defaults and
     features like automatic context detection, color-coded output, and datetime formatting.
 
     Usage:
-        from logician import Logician
+        from logician import PolyLog
 
         # Basic usage with automatic name detection
-        logger = Logician.get_logger()
+        logger = PolyLog.get_logger()
         logger.info("Application started.")
 
         # With explicit name and options
-        logger = Logician.get_logger("MyComponent", level="DEBUG", show_context=True)
+        logger = PolyLog.get_logger("MyComponent", level="DEBUG", show_context=True)
 
         # With datetime formatting
         from datetime import datetime
-        time_logger = Logician.get_logger(time_aware=True)
+        time_logger = PolyLog.get_logger(time_aware=True)
         time_logger.info("Event occurred at %s", datetime.now())  # Formats datetime nicely
     """
 
@@ -67,7 +67,7 @@ class Logician(metaclass=Singleton):
         Returns:
             A configured standard Logger or TimeAwareLogger instance.
         """
-        logger_name = Logician._get_logger_name(logger_name)
+        logger_name = PolyLog._get_logger_name(logger_name)
         logger = logging.getLogger(logger_name)
 
         if not logger.handlers:
@@ -82,7 +82,7 @@ class Logician(metaclass=Singleton):
             logger.addHandler(console_handler)
 
             if log_file:
-                Logician._add_file_handler(logger, log_file)
+                PolyLog._add_file_handler(logger, log_file)
 
             logger.propagate = False
 

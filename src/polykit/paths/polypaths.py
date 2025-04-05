@@ -1,8 +1,8 @@
 # ruff: noqa: D102
 
-r"""PathKeeper: A friendly cross-platform path management utility.
+r"""PolyPaths: A friendly cross-platform path management utility.
 
-PathKeeper simplifies working with application and user directories across different operating
+PolyPaths simplifies working with application and user directories across different operating
 systems, providing consistent access to standard locations while respecting platform conventions.
 
 Platform-specific paths:
@@ -32,12 +32,12 @@ Platform-specific paths:
 
 Examples:
     Basic usage:
-        paths = PathKeeper("myapp")
+        paths = PolyPaths("myapp")
         config_file = paths.from_config("settings.json")
         cache_dir = paths.from_cache("responses")
 
     With author and domain (recommended for macOS):
-        paths = PathKeeper(
+        paths = PolyPaths(
             app_name="MyApp",
             app_author="DeveloperName",
             app_domain_prefix="com.developername",
@@ -52,11 +52,11 @@ from pathlib import Path
 
 from platformdirs import PlatformDirs
 
-from polykit.env import Enviromancer
+from polykit.env import PolyEnv
 
 
 @dataclass
-class PathKeeper:
+class PolyPaths:
     """Manage paths in a friendly way.
 
     Args:
@@ -66,7 +66,7 @@ class PathKeeper:
         version: Application version.
 
     Usage:
-        paths = PathKeeper("dsmusic")
+        paths = PolyPaths("dsmusic")
 
         db_path = paths.get_data_path("upload_log.db")
         cache_path = paths.get_cache_path("api_responses", "tracks.json")
@@ -81,7 +81,7 @@ class PathKeeper:
 
     def __post_init__(self):
         # Get app author and domain prefix from environment variables if available
-        env = Enviromancer()
+        env = PolyEnv()
         env.add_var("PATHKEEPER_APP_AUTHOR", attr_name="app_author", required=False)
         env.add_var("PATHKEEPER_APP_DOMAIN_PREFIX", attr_name="app_domain", required=False)
 

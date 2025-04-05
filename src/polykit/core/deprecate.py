@@ -99,14 +99,14 @@ def _log_and_warn(
     line_num: int | None = None,
     function: str | None = None,
 ) -> None:
-    """Log a message and emit a warning using Logician."""
+    """Log a message and emit a warning using PolyLog."""
     # Create a context-aware message with location information
     short_name = Path(filename).name if filename else "unknown"
     location = f"{short_name}:{line_num} in {function}" if filename and line_num else ""
 
     # Create a logger and log the warning
-    from polykit.log.logician import Logician
+    from polykit.log import PolyLog
 
-    logger = Logician.get_logger(simple=True)
+    logger = PolyLog.get_logger(simple=True)
     log_level = logging.WARNING if warn_type is DeprecationWarning else logging.ERROR
     logger.log(log_level, "%s (%s)", message, location)

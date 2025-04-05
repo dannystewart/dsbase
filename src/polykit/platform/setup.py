@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 
-from polykit.versions import VersionChecker, VersionInfo
+from polykit.platform import VersionChecker, VersionInfo
 
 
 def polykit_setup() -> VersionInfo:
@@ -15,8 +15,8 @@ def polykit_setup() -> VersionInfo:
         it for anything, but it's available in case you need version information for something.
     """
     from polykit.core import log_traceback
-    from polykit.env.enviromancer import Enviromancer
-    from polykit.log.logician import Logician
+    from polykit.env import PolyEnv
+    from polykit.log import PolyLog
 
     # Configure exception handling
     sys.excepthook = lambda exctype, value, tb: log_traceback((exctype, value, tb))
@@ -27,11 +27,11 @@ def polykit_setup() -> VersionInfo:
     # Get and log version information
     version_info = VersionChecker.get_version_info(package_name)
 
-    env = Enviromancer()
+    env = PolyEnv()
     env.add_bool("SHOW_VER")
     level = "DEBUG" if env.show_ver else "INFO"
 
-    logger = Logician.get_logger(level=level, simple=True)
+    logger = PolyLog.get_logger(level=level, simple=True)
     logger.debug("Starting %s", version_info)
 
     return version_info

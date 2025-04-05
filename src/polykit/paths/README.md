@@ -1,6 +1,6 @@
-# PathKeeper
+# PolyPaths
 
-PathKeeper simplifies working with application and user directories across different operating systems, providing consistent access to standard locations while respecting platform conventions.
+PolyPaths simplifies working with application and user directories across different operating systems, providing consistent access to standard locations while respecting platform conventions.
 
 ## Platform-specific paths
 
@@ -42,7 +42,7 @@ documents:   C:\\Users\\<user>\\Documents
 ### Basic Usage
 
 ```python
-paths = PathKeeper("myapp")
+paths = PolyPaths("myapp")
 config_file = paths.from_config("settings.json")
 cache_dir = paths.from_cache("responses")
 ```
@@ -50,7 +50,7 @@ cache_dir = paths.from_cache("responses")
 ### Author and Domain (recommended for macOS)
 
 ```python
-paths = PathKeeper(
+paths = PolyPaths(
     app_name="MyApp",
     app_author="DeveloperName",
     app_domain_prefix="com.developername",

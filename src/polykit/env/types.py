@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class EnvironmentVariable:
+class PolyVar:
     """Represents an environment variable with validation and type conversion.
 
     Args:

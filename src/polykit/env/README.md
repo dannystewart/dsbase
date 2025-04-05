@@ -1,8 +1,6 @@
-# Enviromancer
+# PolyEnv
 
-**Gain mastery over your environment variables.**
-
-Enviromancer is an environment variable manager for Python applications. It handles loading from multiple `.env` files, type conversion, validation, and provides an elegant interface for accessing your environment configuration.
+PolyEnv is an environment variable manager for Python applications. It handles loading from multiple `.env` files, type conversion, validation, and provides an elegant interface for accessing your environment configuration.
 
 ## Features
 
@@ -14,7 +12,7 @@ Enviromancer is an environment variable manager for Python applications. It hand
 - **Smart boolean parsing** that understands various truthy/falsey string formats.
 - **Singleton pattern** ensuring consistent environment state throughout your application.
 
-### Why Enviromancer?
+### Why PolyEnv?
 
 - **Cleaner code**: Access environment variables with proper IDE autocompletion
 - **Type safety**: No more manual type conversion or validation
@@ -22,19 +20,13 @@ Enviromancer is an environment variable manager for Python applications. It hand
 - **Explicit requirements**: Document which environment variables your application needs
 - **Fail-fast validation**: Detect missing or invalid configuration early
 
-## Installation
-
-```bash
-pip install enviromancer
-```
-
 ## Quick Start
 
 ```python
-from enviromancer import Enviromancer
+from polykit.env import PolyEnv
 
 # Create the environment manager (uses singleton pattern)
-env = Enviromancer()
+env = PolyEnv()
 
 # Register environment variables
 env.add_var("API_KEY", required=True, description="External API authentication key", secret=True)
@@ -60,7 +52,7 @@ except ValueError as e:
 
 ## Environment Loading Strategy
 
-Enviromancer uses a sophisticated hierarchical approach to loading environment variables:
+PolyEnv uses a sophisticated hierarchical approach to loading environment variables:
 
 1. Loads from `.env` files in parent directories (up to user's home directory)
 2. Loads from the current directory's `.env` file
@@ -76,10 +68,10 @@ This means more specific configurations (closer to the current directory) overri
 
 ```python
 # Use a specific .env file
-env = Enviromancer(env_file="~/.config/myapp/.env")
+env = PolyEnv(env_file="~/.config/myapp/.env")
 
 # Use multiple .env files (processed in order, later files take precedence)
-env = Enviromancer(env_file=["~/.env.defaults", "~/.env.local"])
+env = PolyEnv(env_file=["~/.env.defaults", "~/.env.local"])
 ```
 
 ### Working with Secrets
@@ -134,7 +126,7 @@ env.add_bool("FEATURE_ENABLED", default=False)
 
 ### Debugging
 
-For detailed logging of Enviromancer's own operations:
+For detailed logging of PolyEnv's own operations:
 
 ```bash
 # Set this environment variable before running your application
@@ -147,9 +139,3 @@ Or in your code:
 import os
 os.environ["ENV_DEBUG"] = "1"
 ```
-
-## License
-
-This project is licensed under the LGPL-3.0 License. See the [LICENSE](https://github.com/dannystewart/enviromancer/blob/main/LICENSE) file for details.
-
-Contributions welcome! Please feel free to submit a pull request!

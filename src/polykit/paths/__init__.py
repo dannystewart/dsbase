@@ -1,8 +1,8 @@
 # ruff: noqa: D212, D415
 
-r"""PathKeeper: A friendly cross-platform path management utility.
+r"""# PolyPaths
 
-PathKeeper simplifies working with application and user directories across different operating
+PolyPaths simplifies working with application and user directories across different operating
 systems, providing consistent access to standard locations while respecting platform conventions.
 
 Platform-specific paths:
@@ -32,12 +32,12 @@ Platform-specific paths:
 
 Examples:
     Basic usage:
-        paths = PathKeeper("myapp")
+        paths = PolyPaths("myapp")
         config_file = paths.from_config("settings.json")
         cache_dir = paths.from_cache("responses")
 
     With author and domain (recommended for macOS):
-        paths = PathKeeper(
+        paths = PolyPaths(
             app_name="MyApp",
             app_author="DeveloperName",
             app_domain_prefix="com.developername",
@@ -46,4 +46,4 @@ Examples:
 
 from __future__ import annotations
 
-from .path_keeper import PathKeeper
+from .polypaths import PolyPaths

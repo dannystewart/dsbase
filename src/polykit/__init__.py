@@ -18,14 +18,14 @@ pip install polykit
 
 ## Core Components
 
-### Elegant Logging with Logician
+### Elegant Logging with PolyLog
 
 Polykit includes a beautiful, customizable logging system that you'll actually enjoy using:
 
 ```python
-from polykit.log import Logician
+from polykit.log import PolyLog
 
-logger = Logician.get_logger(__name__)
+logger = PolyLog.get_logger(__name__)
 logger.info("Starting process with %s items", count)
 logger.success("All items processed successfully!")
 ```
@@ -37,9 +37,9 @@ Features include colorized output, custom log levels, context managers, and much
 Declaratively define and validate environment variables:
 
 ```python
-from polykit.env import Enviromancer
+from polykit.env import PolyEnv
 
-env = Enviromancer()
+env = PolyEnv()
 env.add_var("API_KEY", required=True)
 env.add_var("DEBUG", default="False", transform=bool)
 env.add_var("MAX_CONNECTIONS", default="10", transform=int)
@@ -53,9 +53,9 @@ api_key = env.API_KEY
 Easily work with application directories across operating systems:
 
 ```python
-from polykit.paths import PathKeeper
+from polykit.paths import PolyPaths
 
-paths = PathKeeper("myapp", app_author="MyCompany")
+paths = PolyPaths("myapp", app_author="MyCompany")
 
 config_file = paths.from_config("settings.json")  # ~/.config/myapp/settings.json on Linux
 cache_dir = paths.from_cache("responses")  # ~/Library/Caches/myapp/responses on macOS
@@ -147,3 +147,7 @@ Polykit also includes:
 
 This project is licensed under the LGPL-3.0 License. See the [LICENSE](https://github.com/dannystewart/polykit/blob/main/LICENSE) file for details. Contributions welcome!
 """  # noqa: D212, D415, W505
+
+from __future__ import annotations
+
+from .log.polylog import PolyLog
