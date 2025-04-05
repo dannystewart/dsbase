@@ -13,7 +13,7 @@ from typing import Any
 import requests
 from packaging import version
 
-from polykit.platform.types import PackageSource, VersionInfo
+from polykit.packages.types import PackageSource, VersionInfo
 
 
 class VersionChecker:

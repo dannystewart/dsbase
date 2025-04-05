@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 
-from polykit.platform import VersionChecker, VersionInfo
+from polykit.packages import VersionChecker, VersionInfo
 
 
 def polykit_setup() -> VersionInfo:
