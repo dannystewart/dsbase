@@ -1,7 +1,4 @@
-"""
-# Polykit
-
-A delightful Python utility toolkit that brings power and personality to your projects.
+"""A delightful Python utility toolkit that brings power and personality to your projects.
 
 [![PyPI version](https://img.shields.io/pypi/v/polykit.svg)](https://pypi.org/project/polykit/)
 [![Python versions](https://img.shields.io/pypi/pyversions/polykit.svg)](https://pypi.org/project/polykit/)
