@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -11,7 +10,6 @@ from natsort import natsorted
 from send2trash import send2trash
 
 from polykit.cli import confirm_action
-from polykit.log import PolyLog
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -29,44 +27,36 @@ class PolyFiles:
     detecting duplicate files using SHA-256 hashing.
     """
 
-    def __init__(
-        self, log_level: str = "info", detailed_log: bool = False, logger: Logger | None = None
-    ):
-        self.logger = logger or PolyLog.get_logger(level=log_level, simple=not detailed_log)
-
+    @classmethod
     def list(
-        self,
-        dir: Path,  # noqa: A002
-        exts: str | list[str] | None = None,
-        recursive: bool = False,
+        cls,
+        path: Path,  # noqa: A002
+        extensions: str | list[str] | None = None,
+        recurse: bool = False,
         exclude: str | list[str] | None = None,
-        include_hidden: bool = False,
+        hidden: bool = False,
         sort_key: Callable[..., Any] | None = None,
-        reverse_sort: bool = False,
+        reverse: bool = False,
+        logger: Logger | None = None,
     ) -> list[Path]:
         """List all files in a directory that match the given criteria.
 
-        Sorting is performed by modification time in ascending order by default. Customize sorting
-        with the 'sort_key' and 'reverse' parameters.
-
         Args:
-            dir: The directory to search.
-            exts: The file extensions to include. If None, all files will be included.
-            recursive: Whether to search recursively.
+            path: The directory to search.
+            extensions: The file extensions to include. If None, all files will be included.
+            recurse: Whether to search recursively.
             exclude: Glob patterns to exclude.
-            include_hidden: Whether to include hidden files.
+            hidden: Whether to include hidden files.
             sort_key: A function to use for sorting the files.
-            reverse_sort: Whether to reverse the sort order.
+            reverse: Whether to reverse the sort order.
+            logger: Optional logger for operation information.
 
         Returns:
             A list of file paths as Path objects.
-
-        Example usage with custom sort (alphabetical sorting by file name):
-            `file_list = files.list(dir, sort_key=lambda x: x.stat().st_mtime)`
         """
-        if exts:
+        if extensions:
             # Handle both single string and list inputs
-            ext_list = [exts] if isinstance(exts, str) else exts
+            ext_list = [extensions] if isinstance(extensions, str) else extensions
             # Handle extensions with or without dots
             ext_list = [ext.lstrip(".") for ext in ext_list]
             glob_patterns = [f"*.{ext}" for ext in ext_list]
@@ -75,82 +65,139 @@ class PolyFiles:
 
         files_filtered: list[Path] = []
         for pattern in glob_patterns:
-            files = dir.rglob(pattern) if recursive else dir.glob(pattern)
+            files = path.rglob(pattern) if recurse else path.glob(pattern)
             try:
                 files_filtered.extend(
                     file
                     for file in files
                     if file.is_file()
-                    and (include_hidden or not file.name.startswith("."))
+                    and (hidden or not file.name.startswith("."))
                     and not (exclude and any(file.match(pattern) for pattern in exclude))
                 )
             except FileNotFoundError:
-                self.logger.error(
-                    "Error accessing file while searching %s: File not found", pattern
-                )
+                if logger:
+                    logger.error("Error accessing file while searching %s: File not found", pattern)
 
         sort_function = sort_key or (lambda x: x.stat().st_mtime)
-        return natsorted(files_filtered, key=sort_function, reverse=reverse_sort)
+        return natsorted(files_filtered, key=sort_function, reverse=reverse)
 
+    @classmethod
     def delete(
-        self,
-        file_paths: Path | PathList,
-        show_output: bool = True,
-        show_individual: bool = True,
-        show_total: bool = True,
-        dry_run: bool = False,
-    ) -> tuple[int, int]:
-        """Safely move a list of files to the trash. If that fails, asks for confirmation and
-        deletes them directly.
+        cls, paths: Path | PathList, dry_run: bool = False, logger: Logger | None = None
+    ) -> tuple[int, int, list[str] | None]:
+        """Safely move files to the trash or delete them permanently if necessary.
 
         Args:
-            file_paths: The file paths to delete.
-            show_output: Whether to print output. (This overrides show_individual and show_total.)
-            show_individual: Whether to print output for each individual file.
-            show_total: Whether to print the total number of files deleted at the end.
-            dry_run: Whether to do a dry run (don't actually delete).
+            paths: The file path(s) to delete.
+            dry_run: If True, report what would happen without making changes.
+            logger: Optional logger for operation information.
 
         Returns:
-            The number of successful deletions and failed deletions.
+            A tuple containing: (successful_deletions, failed_deletions, dry_run_messages).
+            The dry_run_messages list is only populated when dry_run=True.
         """
-        if dry_run and show_output:
-            self.logger.warning("NOTE: Dry run, not actually deleting!")
+        # Initialize tracking variables
+        file_list = [paths] if isinstance(paths, Path) else paths
+        successful = 0
+        failed = 0
+        dry_run_messages = [] if dry_run else None
 
-        if not isinstance(file_paths, list):
-            file_paths = [file_paths]
+        # Log dry run mode
+        if dry_run and logger:
+            logger.warning("NOTE: Dry run, not actually deleting!")
 
-        successful_deletions, failed_deletions = 0, 0
-
-        for file_path in file_paths:
+        # Process each file
+        for file_path in file_list:
+            # Skip non-existent files
             if not file_path.exists():
-                failed_deletions += 1
-                if show_individual and show_output:
-                    self.logger.warning("File %s does not exist.", file_path.name)
+                failed += 1
+                if logger:
+                    logger.warning("File %s does not exist.", file_path.name)
                 continue
 
-            if self._handle_file_deletion(
-                file_path, dry_run=dry_run, show_output=show_individual and show_output
+            # Handle file based on dry run mode
+            if dry_run:
+                if cls._handle_dry_run_delete(file_path, logger, dry_run_messages):
+                    successful += 1
+                else:
+                    failed += 1
+            # First try sending to trash
+            elif cls._try_trash_file(file_path, logger) or cls._try_permanent_delete(
+                file_path, logger
             ):
-                successful_deletions += 1
+                successful += 1
             else:
-                failed_deletions += 1
+                failed += 1
 
-        if show_total and show_output and not dry_run:
-            message = (
-                f"{successful_deletions} file{'s' if successful_deletions != 1 else ''} trashed."
-            )
-            if failed_deletions > 0:
-                message += f" Failed to delete {failed_deletions} file{'s' if failed_deletions != 1 else ''}."
-            self.logger.info(message)
+        # Log summary if not in dry run mode
+        if logger and not dry_run:
+            message = f"{successful} file{'s' if successful != 1 else ''} trashed."
+            if failed > 0:
+                message += f" Failed to delete {failed} file{'s' if failed != 1 else ''}."
+            logger.info(message)
 
-        return successful_deletions, failed_deletions
+        return successful, failed, dry_run_messages
 
+    @classmethod
+    def _handle_dry_run_delete(
+        cls, file_path: Path, logger: Logger | None, dry_run_messages: list[str] | None
+    ) -> bool:
+        """Handle file deletion simulation in dry run mode.
+
+        Args:
+            file_path: The file to simulate deletion for.
+            logger: Optional logger for messages.
+            dry_run_messages: A list to collect dry run messages, or None.
+
+        Returns:
+            True, as the simulation is always successful.
+        """
+        message = f"Would delete: {file_path}"
+        if logger:
+            logger.info(message)
+        if dry_run_messages is not None:
+            dry_run_messages.append(message)
+        return True
+
+    @classmethod
+    def _try_trash_file(cls, file_path: Path, logger: Logger | None) -> bool:
+        """Attempt to move a file to the trash.
+
+        Returns:
+            True if the file was successfully trashed, False otherwise.
+        """
+        try:
+            send2trash(str(file_path))
+            if logger:
+                logger.info("✔ Trashed %s", file_path.name)
+            return True
+        except Exception as e:  # Trash failed, log the error
+            if logger:
+                logger.error("Failed to send file to trash: %s", str(e))
+            return False
+
+    @classmethod
+    def _try_permanent_delete(cls, file_path: Path, logger: Logger | None) -> bool:
+        """Attempt to permanently delete a file after user confirmation.
+
+        Returns:
+            True if the file was successfully deleted, False otherwise.
+        """
+        if confirm_action("Do you want to permanently delete the file?"):
+            try:
+                file_path.unlink()
+                if logger:
+                    logger.info("✔ Permanently deleted %s", file_path.name)
+                return True
+            except OSError as err:
+                if logger:
+                    logger.error("Error: Failed to permanently delete %s: %s", file_path.name, err)
+
+        return False
+
+    @classmethod
     def copy(
-        self,
-        source: Path,
-        destination: Path,
-        overwrite: bool = True,
-        show_output: bool = True,
+        cls, source: Path, destination: Path, overwrite: bool = True, logger: Logger | None = None
     ) -> bool:
         """Copy a file from source to destination.
 
@@ -158,36 +205,30 @@ class PolyFiles:
             source: The source file path.
             destination: The destination file path.
             overwrite: Whether to overwrite the destination file if it already exists.
-            show_output: Whether to print output.
+            logger: Optional logger for operation information.
         """
         try:
             if not overwrite and destination.exists():
-                if show_output:
-                    self.logger.warning(
+                if logger:
+                    logger.warning(
                         "Error: Destination file %s already exists. Use overwrite=True to overwrite it.",
                         destination,
                     )
                 return False
 
-            if sys.platform == "win32":
-                self._copy_win32_file(source, destination)
-            else:
-                shutil.copy2(source, destination)
+            shutil.copy2(source, destination)
 
-            if show_output:
-                self.logger.info("Copied %s to %s.", source, destination)
+            if logger:
+                logger.info("Copied %s to %s.", source, destination)
             return True
         except Exception as e:
-            if show_output:
-                self.logger.error("Error copying file: %s", str(e))
+            if logger:
+                logger.error("Error copying file: %s", str(e))
             return False
 
+    @classmethod
     def move(
-        self,
-        source: Path,
-        destination: Path,
-        overwrite: bool = False,
-        show_output: bool = True,
+        cls, source: Path, destination: Path, overwrite: bool = False, logger: Logger | None = None
     ) -> bool:
         """Move a file from source to destination.
 
@@ -195,94 +236,64 @@ class PolyFiles:
             source: The source file path.
             destination: The destination file path.
             overwrite: Whether to overwrite the destination file if it already exists.
-            show_output: Whether to print output.
+            logger: Optional logger for operation information.
         """
         try:
             if not overwrite and destination.exists():
-                if show_output:
-                    self.logger.warning(
+                if logger:
+                    logger.warning(
                         "Error: Destination file %s already exists. Use overwrite=True to overwrite it.",
                         destination,
                     )
                 return False
 
             shutil.move(str(source), str(destination))
-            if show_output:
-                self.logger.info("Moved %s to %s.", source, destination)
+            if logger:
+                logger.info("Moved %s to %s.", source, destination)
             return True
         except Exception as e:
-            self.logger.error("Error moving file: %s", str(e))
+            if logger:
+                logger.error("Error moving file: %s", str(e))
             return False
 
-    def find_dupes_by_hash(self, files: PathList) -> None:
-        """Find and print duplicate files by comparing their SHA-256 hashes.
+    @classmethod
+    def find_dupes_by_hash(
+        cls, files: PathList, logger: Logger | None = None
+    ) -> dict[str, list[Path]]:
+        """Find duplicate files by comparing their SHA-256 hashes.
 
         Args:
             files: A list of file paths.
+            logger: Optional logger for operation information.
+
+        Returns:
+            A dictionary mapping file hashes to lists of duplicate files.
         """
-        hash_map = {}
+        hash_map: dict[str, list[Path]] = {}
         duplicates_found = False
 
         for file_path in files:
             if file_path.is_file():
-                file_hash = self.sha256_checksum(file_path)
+                file_hash = cls.sha256_checksum(file_path)
                 if file_hash not in hash_map:
                     hash_map[file_hash] = [file_path]
                 else:
                     hash_map[file_hash].append(file_path)
                     duplicates_found = True
 
-        for file_hash, file_list in hash_map.items():
-            if len(file_list) > 1:
-                self.logger.info("\nHash: %s", file_hash)
-                self.logger.warning("Duplicate files:")
-                for duplicate_file in file_list:
-                    self.logger.info("  - %s", duplicate_file)
+        if logger:
+            if not duplicates_found:
+                logger.info("No duplicates found!")
+            else:
+                for file_hash, file_list in hash_map.items():
+                    if len(file_list) > 1:
+                        logger.info("\nHash: %s", file_hash)
+                        logger.warning("Duplicate files:")
+                        for duplicate_file in file_list:
+                            logger.info("  - %s", duplicate_file)
 
-        if not duplicates_found:
-            self.logger.info("No duplicates found!")
-
-    def _handle_file_deletion(
-        self,
-        file_path: Path,
-        dry_run: bool = False,
-        show_output: bool = True,
-    ) -> bool:
-        """Attempt to delete a single file, sending it to trash or permanently deleting it.
-
-        Args:
-            file_path: The path of the file to delete.
-            dry_run: Whether to perform a dry run.
-            show_output: Whether to print output messages.
-
-        Returns:
-            True if the deletion was successful, False otherwise.
-        """
-        try:
-            if dry_run:
-                if show_output:
-                    self.logger.info("Would delete: %s", file_path)
-                return True
-
-            send2trash(str(file_path))
-            if show_output:
-                self.logger.info("✔ Trashed %s", file_path.name)
-            return True
-        except Exception as e:
-            if show_output:
-                self.logger.error("Failed to send file to trash: %s", str(e))
-            if confirm_action("Do you want to permanently delete the file?"):
-                try:
-                    file_path.unlink()
-                    if show_output:
-                        self.logger.info("✔ Permanently deleted %s", file_path.name)
-                    return True
-                except OSError as err:
-                    if show_output:
-                        self.logger.error(
-                            "Error: Failed to permanently delete %s : %s", file_path.name, err
-                        )
-        return False
+        # Return only entries with duplicates
+        return {k: v for k, v in hash_map.items() if len(v) > 1}
 
     @staticmethod
     def get_timestamps(file: Path) -> tuple[str, str]:
