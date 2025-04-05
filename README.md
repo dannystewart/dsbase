@@ -134,13 +134,8 @@ Walking Man appears when you need him and cleans up after himself when the task 
 Polykit also includes:
 
 - Thread-safe `Singleton` metaclass
-- Database interfaces for MySQL and SQLite
 - File comparison and diff tools
-- Media transcoding helpers (using ffmpeg)
-- Notification systems (email, Telegram)
-- Progress indicators and loading animations
-- Time parsing and manipulation utilities
-- Shell operation helpers
+- Helpers for shell operations
 
 ## License
 
