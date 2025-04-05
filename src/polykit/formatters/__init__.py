@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from .diff import show_diff
 from .text import Text
 from .time import (
     TZ,
