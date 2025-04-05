@@ -14,16 +14,13 @@ if TYPE_CHECKING:
 class PolyDiff:
     """A utility class with a set of methods to compare files and show differences."""
 
-    def __init__(
-        self, log_level: str = "info", detailed_log: bool = False, logger: Logger | None = None
-    ):
-        self.logger = logger or PolyLog.get_logger(level=log_level, simple=not detailed_log)
-
-    def diff_files(
-        self,
+    @classmethod
+    def files(
+        cls,
         old_path: str | Path,
         new_path: str | Path,
         style: DiffStyle = DiffStyle.COLORED,
+        logger: Logger | None = None,
     ) -> DiffResult:
         """Show diff between two files.
 
@@ -31,19 +28,22 @@ class PolyDiff:
             old_path: The original file to be compared against the new file.
             new_path: The new file which, if different, would overwrite the original content.
             style: The styling to use for the diff output. Defaults to colored.
+            logger: Optional logger for operation information.
 
         Returns:
             DiffResult containing the changes found.
         """
-        return PolyDiff.show_diff(
+        return cls.content(
             old=Path(old_path).read_text(encoding="utf-8"),
             new=Path(new_path).read_text(encoding="utf-8"),
             filename=str(new_path),
             style=style,
+            logger=logger,
         )
 
-    @staticmethod
-    def show_diff(
+    @classmethod
+    def content(
+        cls,
         old: str,
         new: str,
         filename: str | None = None,
@@ -53,21 +53,22 @@ class PolyDiff:
     ) -> DiffResult:
         """Show a unified diff between old and new content.
 
-        If a filename is provided, it will be used in log messages for context. If a logger is
-        provided, additional information will be logged. To skip logging altogether (apart from the
-        diff itself), make sure you don't pass a filename or a logger.
-
         Args:
             old: The original content to be compared against the new content.
             new: The new content which, if different, would overwrite the original content.
             filename: An optional filename to include in log messages for context.
             style: The styling to use for the diff output. Defaults to colored.
-            logger: An optional external logger to use. Otherwise a local logger is created.
+            logger: Optional logger for operation information.
 
         Returns:
             A DiffResult object containing the changes that were identified.
         """
-        logger = logger or PolyLog.get_logger(simple=True)
+        # Create a logger only if we need to display output
+        temp_logger = None
+        if logger is None and style != DiffStyle.MINIMAL:
+            temp_logger = PolyLog.get_logger(simple=True)
+
+        log_func = logger or temp_logger
         content = filename or "text"
 
         changes: list[str] = []
@@ -84,21 +85,30 @@ class PolyDiff:
         )
 
         if not diff:
-            if filename or logger:
-                logger.info("No changes detected in %s.", content)
+            if log_func and filename:
+                log_func.info("No changes detected in %s.", content)
             return DiffResult(False, [], [], [])
 
-        if filename:
-            logger.info("Changes detected in %s:", content)
+        if log_func and filename:
+            log_func.info("Changes detected in %s:", content)
 
         for line in diff:
             changes.append(line.rstrip())
-            PolyDiff._process_diff_line(line, style, logger, additions, deletions)
+            if log_func:
+                cls._process_diff_line(line, style, log_func, additions, deletions)
+            else:
+                # Still track additions and deletions even without logging
+                normalized_line = cls._normalize_diff_line(line)
+                if line.startswith("+"):
+                    additions.append(normalized_line)
+                elif line.startswith("-"):
+                    deletions.append(normalized_line)
 
         return DiffResult(True, changes, additions, deletions)
 
-    @staticmethod
+    @classmethod
     def _process_diff_line(
+        cls,
         line: str,
         style: DiffStyle,
         log_func: Logger,
@@ -106,11 +116,11 @@ class PolyDiff:
         deletions: list[str],
     ) -> None:
         """Process a single line of diff output."""
-        if not PolyDiff._should_show_line(line, style):
+        if not cls._should_show_line(line, style):
             return
 
         # Log with normalized spacing
-        normalized_line = PolyDiff._normalize_diff_line(line)
+        normalized_line = cls._normalize_diff_line(line)
         if style == DiffStyle.COLORED:
             if line.startswith("+"):
                 log_func.info("  %s", normalized_line)
@@ -126,8 +136,8 @@ class PolyDiff:
         elif line.startswith("-"):
             deletions.append(normalized_line)
 
-    @staticmethod
-    def _normalize_diff_line(line: str) -> str:
+    @classmethod
+    def _normalize_diff_line(cls, line: str) -> str:
         """Normalize a diff line by adding one additional space after the diff marker."""
         # Normalize spacing only between the prefix and content
         if line.startswith(("+", "-")):
@@ -149,8 +159,8 @@ class PolyDiff:
 
         return normalized_line
 
-    @staticmethod
-    def _should_show_line(line: str, style: DiffStyle) -> bool:
+    @classmethod
+    def _should_show_line(cls, line: str, style: DiffStyle) -> bool:
         """Determine if a line should be shown based on the diff style."""
         is_colored_or_simple = style in {DiffStyle.COLORED, DiffStyle.SIMPLE}
         is_minimal = style == DiffStyle.MINIMAL
